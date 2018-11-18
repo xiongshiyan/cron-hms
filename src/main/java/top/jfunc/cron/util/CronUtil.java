@@ -64,9 +64,6 @@ public class CronUtil {
         return points;
     }
 
-    private static Date copyDay(Date date){
-        return new Date(date.getYear() , date.getMonth() , date.getDay());
-    }
     private static void assertExecute(int field, CronField cronField) throws NotExecuteException {
         if(!STAR.equals(cronField.getExpress())){
             //计算出来星期几要执行
@@ -116,6 +113,9 @@ public class CronUtil {
                     String[] strings = part.split(HYPHEN);
                     Integer left = Integer.valueOf(strings[0]);
                     Integer right = Integer.valueOf(strings[1]);
+                    if(left > right){
+                        throw new IllegalArgumentException("right should more than left");
+                    }
                     for (int j = left; j <= right ; j++) {
                         if(j < min || j > max){
                             throw new IllegalArgumentException(cronPosition.name() + " 域[" + min + " , " + max + "]");
@@ -147,11 +147,17 @@ public class CronUtil {
                 String[] split = strings[1].split(SLASH);
                 //32
                 right = Integer.valueOf(split[0]);
+                if(left > right){
+                    throw new IllegalArgumentException("right should more than left");
+                }
                 //2
                 step = Integer.valueOf(split[1]);
             }else {
                 //1-32的情况
                 right = Integer.valueOf(strings[1]);
+                if(left > right){
+                    throw new IllegalArgumentException("right should more than left");
+                }
             }
             //仅仅包含/
         }else if(express.contains(SLASH)){
@@ -159,6 +165,9 @@ public class CronUtil {
             left = Integer.valueOf(strings[0]);
             step = Integer.valueOf(strings[1]);
             right = max;
+            if(left > right){
+                throw new IllegalArgumentException("right should more than left");
+            }
         }else {
             // 普通的数字
             list.add(Integer.valueOf(express));
