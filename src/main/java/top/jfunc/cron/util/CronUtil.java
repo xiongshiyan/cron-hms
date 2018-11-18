@@ -15,6 +15,7 @@ public class CronUtil {
     private static final String HYPHEN    = "-";
     private static final String SLASH     = "/";
     private static final int CRON_LEN     = 6;
+    private static final int CRON_LEN_YEAR= 7;
     private static final String CRON_CUT  = "\\s+";
     /**
      * 计算cron表达式在某一天的那些时间执行,精确到秒
@@ -31,9 +32,16 @@ public class CronUtil {
      */
     public static List<HMS> calculate(String cron , Date date) {
         List<CronField> cronFields = convertCronField(cron);
-        int week = DateUtil.week(date);
+        int year  = DateUtil.year(date);
+        int week  = DateUtil.week(date);
         int month = DateUtil.month(date);
-        int day = DateUtil.day(date);
+        int day   = DateUtil.day(date);
+        /// 如果包含年域
+        if(CRON_LEN_YEAR == cronFields.size()){
+            if(!assertExecute(year , cronFields.get(CronPosition.YEAR.getPosition()))){
+                return Collections.emptyList();
+            }
+        }
         ///
         /*//检查星期域是否应该执行
         assertExecute(week, cronFields.get(CronPosition.WEEK.getPosition()));
@@ -81,7 +89,7 @@ public class CronUtil {
         if(STAR.equals(cronField.getExpress())){
             return true;
         }
-        //计算出来星期几几几要执行
+        //计算出来几几几要执行
         List<Integer> list = calculatePoint(cronField);
         return numInList(num, list);
     }
@@ -90,7 +98,7 @@ public class CronUtil {
     private static boolean numInList(int num, List<Integer> list) {
         for (Integer tmp : list) {
             if(tmp == num){
-                //星期相同要执行
+                //相同要执行
                 return true;
             }
         }
@@ -115,83 +123,82 @@ public class CronUtil {
             }
             return list;
         }
-        // 带有,的情况
+        // 带有,的情况,分割之后每部分单独处理
         if(express.contains(COMMA)){
             String[] split = express.split(COMMA);
-            for (int i = 0; i < split.length; i++) {
-                String part = split[i];
-
-                //1-4,5 这种情况
-                if(part.contains(HYPHEN)){
-                    String[] strings = part.split(HYPHEN);
-                    Integer left = Integer.valueOf(strings[0]);
-                    Integer right = Integer.valueOf(strings[1]);
-                    if(left > right){
-                        throw new IllegalArgumentException("right should more than left");
-                    }
-                    for (int j = left; j <= right ; j++) {
-                        if(j < min || j > max){
-                            throw new IllegalArgumentException(cronPosition.name() + " 域[" + min + " , " + max + "]");
-                        }
-                        list.add(j);
-                    }
-                }
-
-                //普通的4,5
-                Integer s = Integer.valueOf(part);
-                if(s < min || s > max){
-                    throw new IllegalArgumentException(cronPosition.name() + " 域[" + min + " , " + max + "]");
-                }
-                list.add(s);
+            for (String part : split) {
+                list.addAll(calculatePoint(
+                                new CronField(cronField.getCronPosition() , part)
+                ));
             }
             return list;
         }
-        // 0-3 0/2 3-15/2   模式统一为 min-max/step
-        Integer left = min;
-        Integer right = max;
+        // 0-3 0/2 3-15/2 5  模式统一为 (min-max)/step
+        Integer left;
+        Integer right;
         Integer step = 1;
 
         //包含-的情况
         if(express.contains(HYPHEN)){
             String[] strings = express.split(HYPHEN);
             left = Integer.valueOf(strings[0]);
+            assertRange(cronPosition, left);
             //1-32/2的情况
             if(strings[1].contains(SLASH)){
                 String[] split = strings[1].split(SLASH);
                 //32
                 right = Integer.valueOf(split[0]);
-                if(left > right){
-                    throw new IllegalArgumentException("right should more than left");
-                }
+                assertSize(left, right);
+                assertRange(cronPosition, right);
                 //2
                 step = Integer.valueOf(split[1]);
             }else {
                 //1-32的情况
                 right = Integer.valueOf(strings[1]);
-                if(left > right){
-                    throw new IllegalArgumentException("right should more than left");
-                }
+                assertSize(left, right);
+                assertRange(cronPosition, right);
             }
             //仅仅包含/
         }else if(express.contains(SLASH)){
             String[] strings = express.split(SLASH);
             left = Integer.valueOf(strings[0]);
+            assertRange(cronPosition, left);
             step = Integer.valueOf(strings[1]);
             right = max;
-            if(left > right){
-                throw new IllegalArgumentException("right should more than left");
-            }
+            assertSize(left, right);
         }else {
             // 普通的数字
-            list.add(Integer.valueOf(express));
+            Integer single = Integer.valueOf(express);
+            assertRange(cronPosition , single);
+            list.add(single);
             return list;
         }
 
-        for (int i = left; i <= right ; i+=step) {
+        for (int i = left; i <= right ; i += step) {
             list.add(i);
         }
         return list;
 
+    }
+
+    /**
+     * 比较大小,左边的必须比右边小
+     */
+    private static void assertSize(Integer left, Integer right) {
+        if(left > right){
+            throw new IllegalArgumentException("right should bigger than left , but find " + left + " > " + right);
+        }
+    }
+
+    /**
+     * 某个域的范围
+     */
+    private static void assertRange(CronPosition cronPosition, Integer value) {
+        Integer min = cronPosition.getMin();
+        Integer max = cronPosition.getMax();
+        if(value < min || value > max){
+            throw new IllegalArgumentException(cronPosition.name() + " 域[" + min + " , " + max + "],  but find " + value);
+        }
     }
 
     /**
@@ -200,14 +207,16 @@ public class CronUtil {
     public static List<CronField> convertCronField(String cron){
         List<String> cut = cut(cron);
         int size = cut.size();
-        if(CRON_LEN != size){
-            throw new IllegalArgumentException("cron 表达式必须有六个域");
+        if(CRON_LEN != size && (CRON_LEN + 1) != size){
+            throw new IllegalArgumentException("cron表达式必须有六个域或者七个域(最后为年)");
         }
         List<CronField> cronFields = new ArrayList<>(size);
         for (int i = 0; i < size; i++) {
+            CronPosition cronPosition = CronPosition.fromPosition(i);
             cronFields.add(new CronField(
-                    CronPosition.fromPosition(i) ,
-                    cut.get(i)));
+                    cronPosition,
+                    CronShapingUtil.shaping(
+                            cut.get(i) , cronPosition)));
         }
         return cronFields;
     }

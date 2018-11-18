@@ -4,7 +4,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import top.jfunc.cron.pojo.CronField;
 import top.jfunc.cron.pojo.HMS;
-import top.jfunc.cron.pojo.NotExecuteException;
 import top.jfunc.cron.util.CronUtil;
 import top.jfunc.cron.util.DateUtil;
 
@@ -37,7 +36,7 @@ public class CronTest {
                 CronUtil.cut(cron));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testConvertField() {
         List<CronField> cronFields = CronUtil.convertCronField("0 0-5 14/2 * * ?");
         for (int i = 0; i < 6; i++) {
@@ -63,25 +62,26 @@ public class CronTest {
         Assert.assertEquals("1-5" , fields.get(5).getExpress());
 
 
-        //抛异常 必须六个域
-        CronUtil.convertCronField("0 15 10 ? JAN-NOV MON-FRI 2018");
+        //包含年域的情况
+        cronFields = CronUtil.convertCronField("0 15 10 ? JAN-NOV MON-FRi 2018");
+        System.out.println(cronFields);
     }
     @Test
     public void testConvertCronField(){
-        List<CronField> cronFields = CronUtil.convertCronField("1 0-5 1/3 1,3,4 0-11/2 ?");
+        List<CronField> cronFields = CronUtil.convertCronField("1 0-5 1/3 1,3,4 1-11/2 ?");
         Assert.assertEquals(Collections.singletonList(1) , CronUtil.calculatePoint(cronFields.get(0)));
         Assert.assertEquals(Arrays.asList(0,1,2,3,4,5) , CronUtil.calculatePoint(cronFields.get(1)));
         Assert.assertEquals(Arrays.asList(1,4,7,10,13,16,19,22) , CronUtil.calculatePoint(cronFields.get(2)));
         Assert.assertEquals(Arrays.asList(1,3,4) , CronUtil.calculatePoint(cronFields.get(3)));
-        Assert.assertEquals(Arrays.asList(0,2,4,6,8,10) , CronUtil.calculatePoint(cronFields.get(4)));
+        Assert.assertEquals(Arrays.asList(1,3,5,7,9,11) , CronUtil.calculatePoint(cronFields.get(4)));
         Assert.assertEquals(Arrays.asList(0,1,2,3,4,5,6) , CronUtil.calculatePoint(cronFields.get(5)));
     }
 
     @Test
-    public void testCal() throws Exception{
+    public void testCal(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
         List<HMS> calculate = CronUtil.calculate("0 15 10 ? * *", date);
-        Assert.assertEquals(Arrays.asList(new HMS(10 , 15 , 0)) , calculate);
+        Assert.assertEquals(Collections.singletonList(new HMS(10 , 15 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0-5 15 10 ? * *", date);
         Assert.assertEquals(Arrays.asList(
@@ -137,9 +137,70 @@ public class CronTest {
                 new HMS(10 , 21 , 0),
                 new HMS(10 , 26 , 0)) , calculate);
 
+        calculate = CronUtil.calculate("0 1-4,43 10 ? 11 *", date);
+        Assert.assertEquals(Arrays.asList(
+                new HMS(10 , 1 , 0),
+                new HMS(10 , 2 , 0),
+                new HMS(10 , 3 , 0),
+                new HMS(10 , 4 , 0),
+                new HMS(10 , 43 , 0)) , calculate);
+
+        calculate = CronUtil.calculate("0 1-10/2,43 10 ? 11 *", date);
+        Assert.assertEquals(Arrays.asList(
+                new HMS(10 , 1 , 0),
+                new HMS(10 , 3 , 0),
+                new HMS(10 , 5 , 0),
+                new HMS(10 , 7 , 0),
+                new HMS(10 , 9 , 0),
+                new HMS(10 , 43 , 0)) , calculate);
+
+        calculate = CronUtil.calculate("0 1-6/2,12-27/5 10 ? 11 *", date);
+        Assert.assertEquals(Arrays.asList(
+                new HMS(10 , 1 , 0),
+                new HMS(10 , 3 , 0),
+                new HMS(10 , 5 , 0),
+                new HMS(10 , 12 , 0),
+                new HMS(10 , 17 , 0),
+                new HMS(10 , 22 , 0),
+                new HMS(10 , 27 , 0)) , calculate);
+
+        ///星期一到星期六执行,星期天不执行就返回空集合
         calculate = CronUtil.calculate("0 1-30/5 10 ? * MON-SAT", date);
         Assert.assertEquals(Collections.emptyList(), calculate);
-
-
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testException1(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        CronUtil.calculate("5-0 15 10 ? * *", date);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testException2(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        CronUtil.calculate("1-62 15 10 ? * *", date);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testException3(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        CronUtil.calculate("1 2-78 10 ? * *", date);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testException4(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        CronUtil.calculate("2 15 25 ? * *", date);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testException5(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        CronUtil.calculate("2 15 23 2-32 * *", date);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testException6(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        CronUtil.calculate("2 15 23 3 1-13/2 *", date);
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testException7(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        CronUtil.calculate("2 15 23 3 3 7", date);
     }
 }

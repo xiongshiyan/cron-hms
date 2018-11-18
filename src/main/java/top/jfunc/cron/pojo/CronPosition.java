@@ -10,7 +10,8 @@ public enum  CronPosition {
     HOUR  (2 , 0 , 23) ,
     DAY   (3 , 1 , 31) ,
     MONTH (4 , 1 , 12) ,
-    WEEK  (5 , 0 , 6)  ;
+    WEEK  (5 , 0 , 6)  ,
+    YEAR  (6 , 2018 , 2099);
     /**
      * 在cron表达式中的位置
      */

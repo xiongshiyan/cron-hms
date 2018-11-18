@@ -12,7 +12,7 @@ public class CronField {
 
     public CronField(CronPosition cronPosition, String express) {
         this.cronPosition = cronPosition;
-        this.express = CronShapingUtil.shaping(express , cronPosition);
+        this.express = express;
     }
 
     public CronPosition getCronPosition() {
