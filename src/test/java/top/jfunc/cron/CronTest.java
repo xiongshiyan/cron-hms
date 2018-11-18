@@ -154,6 +154,14 @@ public class CronTest {
                 new HMS(10 , 9 , 0),
                 new HMS(10 , 43 , 0)) , calculate);
 
+        calculate = CronUtil.calculate("0 7,1-5/2,5,6 10 ? 11 *", date);
+        Assert.assertEquals(Arrays.asList(
+                new HMS(10 , 1 , 0),
+                new HMS(10 , 3 , 0),
+                new HMS(10 , 5 , 0),
+                new HMS(10 , 6 , 0),
+                new HMS(10 , 7 , 0)) , calculate);
+
         calculate = CronUtil.calculate("0 1-6/2,12-27/5 10 ? 11 *", date);
         Assert.assertEquals(Arrays.asList(
                 new HMS(10 , 1 , 0),
