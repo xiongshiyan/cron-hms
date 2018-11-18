@@ -9,6 +9,7 @@ import top.jfunc.cron.util.CronUtil;
 import top.jfunc.cron.util.DateUtil;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -62,13 +63,13 @@ public class CronTest {
         Assert.assertEquals("1-5" , fields.get(5).getExpress());
 
 
-        //抛异常
+        //抛异常 必须六个域
         CronUtil.convertCronField("0 15 10 ? JAN-NOV MON-FRI 2018");
     }
     @Test
     public void testConvertCronField(){
         List<CronField> cronFields = CronUtil.convertCronField("1 0-5 1/3 1,3,4 0-11/2 ?");
-        Assert.assertEquals(Arrays.asList(1) , CronUtil.calculatePoint(cronFields.get(0)));
+        Assert.assertEquals(Collections.singletonList(1) , CronUtil.calculatePoint(cronFields.get(0)));
         Assert.assertEquals(Arrays.asList(0,1,2,3,4,5) , CronUtil.calculatePoint(cronFields.get(1)));
         Assert.assertEquals(Arrays.asList(1,4,7,10,13,16,19,22) , CronUtil.calculatePoint(cronFields.get(2)));
         Assert.assertEquals(Arrays.asList(1,3,4) , CronUtil.calculatePoint(cronFields.get(3)));
@@ -76,7 +77,7 @@ public class CronTest {
         Assert.assertEquals(Arrays.asList(0,1,2,3,4,5,6) , CronUtil.calculatePoint(cronFields.get(5)));
     }
 
-    @Test(expected = NotExecuteException.class)
+    @Test
     public void testCal() throws Exception{
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
         List<HMS> calculate = CronUtil.calculate("0 15 10 ? * *", date);
@@ -136,15 +137,8 @@ public class CronTest {
                 new HMS(10 , 21 , 0),
                 new HMS(10 , 26 , 0)) , calculate);
 
-        //不执行,抛异常
         calculate = CronUtil.calculate("0 1-30/5 10 ? * MON-SAT", date);
-        Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 6 , 0),
-                new HMS(10 , 11 , 0),
-                new HMS(10 , 16 , 0),
-                new HMS(10 , 21 , 0),
-                new HMS(10 , 26 , 0)) , calculate);
+        Assert.assertEquals(Collections.emptyList(), calculate);
 
 
     }

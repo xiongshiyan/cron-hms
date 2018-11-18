@@ -3,12 +3,8 @@ package top.jfunc.cron.util;
 import top.jfunc.cron.pojo.CronField;
 import top.jfunc.cron.pojo.CronPosition;
 import top.jfunc.cron.pojo.HMS;
-import top.jfunc.cron.pojo.NotExecuteException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author xiongshiyan at 2018/11/17 , contact me with email yanshixiong@126.com or phone 15208384257
@@ -31,20 +27,27 @@ public class CronUtil {
      ---------------------
      * @param cron cron表达式
      * @param date 时间,某天
-     * @return 这一天的哪些时分秒执行
-     * @throws NotExecuteException 今天不该执行抛出异常
+     * @return 这一天的哪些时分秒执行,不执行的返回空
      */
-    public static List<HMS> calculate(String cron , Date date) throws NotExecuteException {
+    public static List<HMS> calculate(String cron , Date date) {
         List<CronField> cronFields = convertCronField(cron);
         int week = DateUtil.week(date);
         int month = DateUtil.month(date);
         int day = DateUtil.day(date);
-        //检查星期域是否应该执行
+        ///
+        /*//检查星期域是否应该执行
         assertExecute(week, cronFields.get(CronPosition.WEEK.getPosition()));
         //检查月域是否应该执行
         assertExecute(month, cronFields.get(CronPosition.MONTH.getPosition()));
         //检查日域是否应该执行
-        assertExecute(day, cronFields.get(CronPosition.DAY.getPosition()));
+        assertExecute(day, cronFields.get(CronPosition.DAY.getPosition()));*/
+
+        ///今天不执行就直接返回空
+        if(!assertExecute(week , cronFields.get(CronPosition.WEEK.getPosition()))
+           ||!assertExecute(month , cronFields.get(CronPosition.MONTH.getPosition()))
+           ||!assertExecute(day , cronFields.get(CronPosition.DAY.getPosition()))){
+            return Collections.emptyList();
+        }
 
         CronField fieldHour = cronFields.get(CronPosition.HOUR.getPosition());
         List<Integer> listHour = calculatePoint(fieldHour);
@@ -64,19 +67,29 @@ public class CronUtil {
         return points;
     }
 
-    private static void assertExecute(int field, CronField cronField) throws NotExecuteException {
+    /*private static void assertExecute(int field, CronField cronField) throws NotExecuteException {
         if(!STAR.equals(cronField.getExpress())){
             //计算出来星期几要执行
             List<Integer> list = calculatePoint(cronField);
-            if(!needExecute(field, list)){
+            if(!numInList(field, list)){
                 throw new NotExecuteException(cronField.getCronPosition().name() + " " + field + " 不执行");
             }
         }
+    }*/
+
+    private static boolean assertExecute(int num, CronField cronField) {
+        if(STAR.equals(cronField.getExpress())){
+            return true;
+        }
+        //计算出来星期几几几要执行
+        List<Integer> list = calculatePoint(cronField);
+        return numInList(num, list);
     }
 
-    private static boolean needExecute(int fieldPoint, List<Integer> list) {
+
+    private static boolean numInList(int num, List<Integer> list) {
         for (Integer tmp : list) {
-            if(tmp == fieldPoint){
+            if(tmp == num){
                 //星期相同要执行
                 return true;
             }
