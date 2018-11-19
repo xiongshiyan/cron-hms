@@ -7,6 +7,11 @@ import top.jfunc.cron.pojo.HMS;
 import java.util.*;
 
 /**
+ * 解析cron表达式，计算某天的那些时刻执行。
+ * 思路：1、切割cron表达式
+ *      2、转换每个域
+ *      3、计算执行时间点（关键算法，解析cron表达式）
+ *      4、计算某一天的哪些时间点执行
  * @author xiongshiyan at 2018/11/17 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public class CronUtil {

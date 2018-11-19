@@ -1,7 +1,5 @@
 package top.jfunc.cron.pojo;
 
-import top.jfunc.cron.util.CronShapingUtil;
-
 /**
  * cron表达式的域
  * @author xiongshiyan
