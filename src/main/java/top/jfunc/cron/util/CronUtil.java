@@ -9,9 +9,10 @@ import java.util.*;
 /**
  * 解析cron表达式，计算某天的那些时刻执行。
  * 思路：1、切割cron表达式
- *      2、转换每个域
- *      3、计算执行时间点（关键算法，解析cron表达式）
- *      4、计算某一天的哪些时间点执行
+ * 2、转换每个域
+ * 3、计算执行时间点（关键算法，解析cron表达式）
+ * 4、计算某一天的哪些时间点执行
+ *
  * @author xiongshiyan at 2018/11/17 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public class CronUtil {
@@ -24,7 +25,7 @@ public class CronUtil {
     private static final String CRON_CUT = "\\s+";
 
     /**
-     * 计算cron表达式在某一天的那些时间执行,精确到秒
+     * 4.计算cron表达式在某一天的那些时间执行,精确到秒
      * 秒 分 时 日 月 周 (年)
      * "0 15 10 ? * *"  每天上午10:15触发
      * "0 0/5 14 * * ?"  在每天下午2点到下午2:55期间的每5分钟触发
@@ -45,7 +46,8 @@ public class CronUtil {
         int day = DateUtil.day(date);
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
-            if (!assertExecute(year, cronFields.get(CronPosition.YEAR.getPosition()))) {
+            CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
+            if (!assertExecute(year, fieldYear, calculatePoint(fieldYear))) {
                 return Collections.emptyList();
             }
         }
@@ -57,10 +59,17 @@ public class CronUtil {
         //检查日域是否应该执行
         assertExecute(day, cronFields.get(CronPosition.DAY.getPosition()));*/
 
+
+        CronField fieldWeek = cronFields.get(CronPosition.WEEK.getPosition());
+        List<Integer> listWeek = calculatePoint(fieldWeek);
+        CronField fieldMonth = cronFields.get(CronPosition.MONTH.getPosition());
+        List<Integer> listMonth = calculatePoint(fieldMonth);
+        CronField fieldDay = cronFields.get(CronPosition.DAY.getPosition());
+        List<Integer> listDay = calculatePoint(fieldDay);
         ///今天不执行就直接返回空
-        if (!assertExecute(week, cronFields.get(CronPosition.WEEK.getPosition()))
-                || !assertExecute(month, cronFields.get(CronPosition.MONTH.getPosition()))
-                || !assertExecute(day, cronFields.get(CronPosition.DAY.getPosition()))) {
+        if (!assertExecute(week, fieldWeek, listWeek)
+                || !assertExecute(month, fieldMonth, listMonth)
+                || !assertExecute(day, fieldDay, listDay)) {
             return Collections.emptyList();
         }
 
@@ -82,13 +91,8 @@ public class CronUtil {
         return points;
     }
 
-    private static boolean assertExecute(int num, CronField cronField) {
-        if (STAR.equals(cronField.getExpress())) {
-            return true;
-        }
-        //计算出来几几几要执行
-        List<Integer> list = calculatePoint(cronField);
-        return numInList(num, list);
+    private static boolean assertExecute(int num, CronField cronField, List<Integer> list) {
+        return STAR.equals(cronField.getExpress()) || numInList(num, list);
     }
 
 
@@ -103,7 +107,7 @@ public class CronUtil {
     }
 
     /**
-     * 计算某域的哪些点
+     * 3.计算某域的哪些点
      *
      * @param cronField cron域
      */
@@ -217,7 +221,7 @@ public class CronUtil {
     }
 
     /**
-     * cron表达式转换为域
+     * 2.cron域表达式转换为域
      */
     public static List<CronField> convertCronField(String cron) {
         List<String> cut = cut(cron);
@@ -230,14 +234,14 @@ public class CronUtil {
             CronPosition cronPosition = CronPosition.fromPosition(i);
             cronFields.add(new CronField(
                     cronPosition,
-                    CronShapingUtil.shaping(
-                            cut.get(i), cronPosition)));
+                    CronShapingUtil.shaping(cut.get(i), cronPosition)
+            ));
         }
         return cronFields;
     }
 
     /**
-     * 把cron表达式切成域
+     * 1.把cron表达式切成域表达式
      *
      * @param cron cron
      * @return 代表每个域的列表
