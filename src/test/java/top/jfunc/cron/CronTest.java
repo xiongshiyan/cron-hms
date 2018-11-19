@@ -3,7 +3,7 @@ package top.jfunc.cron;
 import org.junit.Assert;
 import org.junit.Test;
 import top.jfunc.cron.pojo.CronField;
-import top.jfunc.cron.pojo.HMS;
+import top.jfunc.cron.pojo.TimeOfDay;
 import top.jfunc.cron.util.CronUtil;
 import top.jfunc.cron.util.DateUtil;
 
@@ -23,6 +23,9 @@ public class CronTest {
         Assert.assertEquals(11, DateUtil.month(date));
         Assert.assertEquals(6, DateUtil.week(date));
         Assert.assertEquals(17, DateUtil.day(date));
+        Assert.assertEquals(12, DateUtil.hour(date));
+        Assert.assertEquals(0, DateUtil.minute(date));
+        Assert.assertEquals(12, DateUtil.second(date));
 
         date = DateUtil.toDate("2018-11-18 12:00:12");
         Assert.assertEquals(0, DateUtil.week(date));
@@ -80,97 +83,97 @@ public class CronTest {
     @Test
     public void testCal(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        List<HMS> calculate = CronUtil.calculate("0 15 10 ? * *", date);
-        Assert.assertEquals(Collections.singletonList(new HMS(10 , 15 , 0)) , calculate);
+        List<TimeOfDay> calculate = CronUtil.calculate("0 15 10 ? * *", date);
+        Assert.assertEquals(Collections.singletonList(new TimeOfDay(10 , 15 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0-5 15 10 ? * *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 15 , 0),
-                new HMS(10 , 15 , 1),
-                new HMS(10 , 15 , 2),
-                new HMS(10 , 15 , 3),
-                new HMS(10 , 15 , 4),
-                new HMS(10 , 15 , 5)) , calculate);
+                new TimeOfDay(10 , 15 , 0),
+                new TimeOfDay(10 , 15 , 1),
+                new TimeOfDay(10 , 15 , 2),
+                new TimeOfDay(10 , 15 , 3),
+                new TimeOfDay(10 , 15 , 4),
+                new TimeOfDay(10 , 15 , 5)) , calculate);
 
         calculate = CronUtil.calculate("0 1/10 10 ? * *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 11 , 0),
-                new HMS(10 , 21 , 0),
-                new HMS(10 , 31 , 0),
-                new HMS(10 , 41 , 0),
-                new HMS(10 , 51 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 11 , 0),
+                new TimeOfDay(10 , 21 , 0),
+                new TimeOfDay(10 , 31 , 0),
+                new TimeOfDay(10 , 41 , 0),
+                new TimeOfDay(10 , 51 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0 1,4,6,8,10,50 10 ? * *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 4 , 0),
-                new HMS(10 , 6 , 0),
-                new HMS(10 , 8 , 0),
-                new HMS(10 , 10 , 0),
-                new HMS(10 , 50 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 4 , 0),
+                new TimeOfDay(10 , 6 , 0),
+                new TimeOfDay(10 , 8 , 0),
+                new TimeOfDay(10 , 10 , 0),
+                new TimeOfDay(10 , 50 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0 1-30/5 10 ? * *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 6 , 0),
-                new HMS(10 , 11 , 0),
-                new HMS(10 , 16 , 0),
-                new HMS(10 , 21 , 0),
-                new HMS(10 , 26 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 6 , 0),
+                new TimeOfDay(10 , 11 , 0),
+                new TimeOfDay(10 , 16 , 0),
+                new TimeOfDay(10 , 21 , 0),
+                new TimeOfDay(10 , 26 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0 1-30/5 10 ? * SUN", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 6 , 0),
-                new HMS(10 , 11 , 0),
-                new HMS(10 , 16 , 0),
-                new HMS(10 , 21 , 0),
-                new HMS(10 , 26 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 6 , 0),
+                new TimeOfDay(10 , 11 , 0),
+                new TimeOfDay(10 , 16 , 0),
+                new TimeOfDay(10 , 21 , 0),
+                new TimeOfDay(10 , 26 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0 1-30/5 10 ? 11 *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 6 , 0),
-                new HMS(10 , 11 , 0),
-                new HMS(10 , 16 , 0),
-                new HMS(10 , 21 , 0),
-                new HMS(10 , 26 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 6 , 0),
+                new TimeOfDay(10 , 11 , 0),
+                new TimeOfDay(10 , 16 , 0),
+                new TimeOfDay(10 , 21 , 0),
+                new TimeOfDay(10 , 26 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0 1-4,43 10 ? 11 *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 2 , 0),
-                new HMS(10 , 3 , 0),
-                new HMS(10 , 4 , 0),
-                new HMS(10 , 43 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 2 , 0),
+                new TimeOfDay(10 , 3 , 0),
+                new TimeOfDay(10 , 4 , 0),
+                new TimeOfDay(10 , 43 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0 1-10/2,43 10 ? 11 *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 3 , 0),
-                new HMS(10 , 5 , 0),
-                new HMS(10 , 7 , 0),
-                new HMS(10 , 9 , 0),
-                new HMS(10 , 43 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 3 , 0),
+                new TimeOfDay(10 , 5 , 0),
+                new TimeOfDay(10 , 7 , 0),
+                new TimeOfDay(10 , 9 , 0),
+                new TimeOfDay(10 , 43 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0 7,1-5/2,5,6 10 ? 11 *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 3 , 0),
-                new HMS(10 , 5 , 0),
-                new HMS(10 , 6 , 0),
-                new HMS(10 , 7 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 3 , 0),
+                new TimeOfDay(10 , 5 , 0),
+                new TimeOfDay(10 , 6 , 0),
+                new TimeOfDay(10 , 7 , 0)) , calculate);
 
         calculate = CronUtil.calculate("0 1-6/2,12-27/5 10 ? 11 *", date);
         Assert.assertEquals(Arrays.asList(
-                new HMS(10 , 1 , 0),
-                new HMS(10 , 3 , 0),
-                new HMS(10 , 5 , 0),
-                new HMS(10 , 12 , 0),
-                new HMS(10 , 17 , 0),
-                new HMS(10 , 22 , 0),
-                new HMS(10 , 27 , 0)) , calculate);
+                new TimeOfDay(10 , 1 , 0),
+                new TimeOfDay(10 , 3 , 0),
+                new TimeOfDay(10 , 5 , 0),
+                new TimeOfDay(10 , 12 , 0),
+                new TimeOfDay(10 , 17 , 0),
+                new TimeOfDay(10 , 22 , 0),
+                new TimeOfDay(10 , 27 , 0)) , calculate);
 
         ///星期一到星期六执行,星期天不执行就返回空集合
         calculate = CronUtil.calculate("0 1-30/5 10 ? * MON-SAT", date);

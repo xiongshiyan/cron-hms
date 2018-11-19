@@ -4,12 +4,12 @@ package top.jfunc.cron.pojo;
  * 保存时分秒
  * @author xiongshiyan at 2018/11/18 , contact me with email yanshixiong@126.com or phone 15208384257
  */
-public class HMS {
+public final class TimeOfDay implements Comparable<TimeOfDay> {
     private Integer hour;
     private Integer minute;
     private Integer second;
 
-    public HMS(Integer hour, Integer minute, Integer second) {
+    public TimeOfDay(Integer hour, Integer minute, Integer second) {
         this.hour = hour;
         this.minute = minute;
         this.second = second;
@@ -41,7 +41,7 @@ public class HMS {
 
     @Override
     public String toString() {
-        return "HMS{" +
+        return "TimeOfDay{" +
                 "hour=" + hour +
                 ", minute=" + minute +
                 ", second=" + second +
@@ -53,11 +53,11 @@ public class HMS {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        HMS hms = (HMS) o;
+        TimeOfDay timeOfDay = (TimeOfDay) o;
 
-        if (hour != null ? !hour.equals(hms.hour) : hms.hour != null) return false;
-        if (minute != null ? !minute.equals(hms.minute) : hms.minute != null) return false;
-        return second != null ? second.equals(hms.second) : hms.second == null;
+        if (hour != null ? !hour.equals(timeOfDay.hour) : timeOfDay.hour != null) return false;
+        if (minute != null ? !minute.equals(timeOfDay.minute) : timeOfDay.minute != null) return false;
+        return second != null ? second.equals(timeOfDay.second) : timeOfDay.second == null;
     }
 
     @Override
@@ -66,5 +66,31 @@ public class HMS {
         result = 31 * result + (minute != null ? minute.hashCode() : 0);
         result = 31 * result + (second != null ? second.hashCode() : 0);
         return result;
+    }
+
+    /**
+     * 按照时分秒的顺序逐个比较
+     */
+    @Override
+    public int compareTo(TimeOfDay o) {
+        if (this.getHour() > o.getHour()) {
+            return 1;
+        }
+        if (this.getHour() < o.getHour()) {
+            return -1;
+        }
+        if (this.getMinute() > o.getMinute()) {
+            return 1;
+        }
+        if (this.getMinute() < o.getMinute()) {
+            return -1;
+        }
+        if (this.getSecond() > o.getSecond()) {
+            return 1;
+        }
+        if (this.getSecond() < o.getSecond()) {
+            return -1;
+        }
+        return 0;
     }
 }

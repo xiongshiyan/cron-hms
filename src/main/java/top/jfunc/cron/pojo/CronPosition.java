@@ -44,10 +44,9 @@ public enum  CronPosition {
     }
 
     public static CronPosition fromPosition(int position){
-        CronPosition[] values = CronPosition.values();
-        for (CronPosition field : values) {
-            if(position == field.position){
-                return field;
+        for (CronPosition cronPosition : CronPosition.values()) {
+            if(position == cronPosition.position){
+                return cronPosition;
             }
         }
         return null;

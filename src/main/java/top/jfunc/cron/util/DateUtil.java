@@ -106,4 +106,34 @@ public class DateUtil {
         cal.setTime(date);
         return cal.get(Calendar.YEAR);
     }
+    /**
+     * 计算某一天的时
+     * @param date 日期
+     * @return 时 0-23
+     */
+    public static int hour(Date date){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.HOUR_OF_DAY);
+    }
+    /**
+     * 计算某一天的分
+     * @param date 日期
+     * @return 秒 0-59
+     */
+    public static int minute(Date date){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.MINUTE);
+    }
+    /**
+     * 计算某一天的秒
+     * @param date 日期
+     * @return 秒 0-59
+     */
+    public static int second(Date date){
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        return cal.get(Calendar.SECOND);
+    }
 }
