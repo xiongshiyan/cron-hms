@@ -209,9 +209,4 @@ public class CronTest {
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
         CronUtil.calculate("2 15 23 3 1-13/2 *", date);
     }
-    @Test(expected = IllegalArgumentException.class)
-    public void testException7(){
-        Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        CronUtil.calculate("2 15 23 3 3 7", date);
-    }
 }

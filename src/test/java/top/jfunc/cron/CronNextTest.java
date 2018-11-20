@@ -134,10 +134,95 @@ public class CronNextTest {
     public void testNext11(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
         String cron = "0-12/12 00 12 ? * *";
+        Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2018-11-19 12:00:00" , DateUtil.toStr(next));
+
         Date next1 = CronUtil.next(cron, date);
-        Assert.assertEquals("2018-11-18 12:00:12" , DateUtil.toStr(next1));
+        Assert.assertEquals("2018-11-19 12:00:00" , DateUtil.toStr(next1));
     }
 
+    /**
+     * 以下是一些极端情况，属于撞大运的
+     */
+    @Test
+    public void testNext12(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 7";//0
+        Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2019-03-03 23:15:02" , DateUtil.toStr(next));
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2019-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testNext13(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 6";
+
+        ///报错
+        /*Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2029-03-03 23:15:02" , DateUtil.toStr(next));*/
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2029-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
+    @Test
+    public void testNext14(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 5";
+
+        ///报错
+        /*Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2023-03-03 23:15:02" , DateUtil.toStr(next));*/
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2023-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
+    @Test
+    public void testNext15(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 4";
+
+        Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2022-03-03 23:15:02" , DateUtil.toStr(next));
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2022-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
+    @Test
+    public void testNext16(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 3";
+
+        Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2021-03-03 23:15:02" , DateUtil.toStr(next));
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2021-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
+    @Test
+    public void testNext17(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 2";
+
+        Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2020-03-03 23:15:02" , DateUtil.toStr(next));
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2020-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
+    @Test(expected = IllegalArgumentException.class)
+    public void testNext18(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 1";
+
+        ///异常
+        Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2019-03-03 23:15:02" , DateUtil.toStr(next));
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2025-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
     /**
      * 一个比较复杂的表达式来测试 benchmark
      * 1.由于Spring使用了BitSet数据结构，操作都是位运算，所以速度较快

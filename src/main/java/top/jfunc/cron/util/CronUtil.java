@@ -28,6 +28,7 @@ public class CronUtil {
     private static final String CRON_CUT = "\\s+";
 
     private static final int MAX_ADD_COUNT = 365;
+    private static final int MAX_ADD_YEAR  = 10;
 
 
     /**
@@ -49,8 +50,9 @@ public class CronUtil {
         CronField fieldWeek = cronFields.get(CronPosition.WEEK.getPosition());
 
         Calendar calendar = Calendar.getInstance();
-        //基准线
+        //基准线,至少从下一秒开始
         calendar.setTime(date);
+        calendar.add(Calendar.SECOND , 1);
 
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
@@ -63,10 +65,22 @@ public class CronUtil {
             }
         }
 
-        return doNext(calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek);
+        return doNext(0, calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek);
     }
 
-    private static Date doNext(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek) {
+    private static Date doNext(int addYear , Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek) {
+        if(addYear >= MAX_ADD_YEAR){
+            throw new IllegalArgumentException("Invalid cron expression \"" +
+                    (fieldSecond.getExpress() + " "
+                    + fieldMinute.getExpress() + " "
+                    + fieldHour.getExpress() + " "
+                    + fieldDay.getExpress() + " "
+                    + fieldMonth.getExpress() + " "
+                    + fieldWeek.getExpress())
+                    + "\" which led to runaway search for next trigger");
+        }
+
+
         Date newDate = calendar.getTime();
         //先确定时分秒
         Integer hourNow = DateUtil.hour(newDate);
@@ -139,14 +153,14 @@ public class CronUtil {
             count++;
             //极端情况下：这尼玛太坑了,一般遇不到:加了一年还未找到
             if (count >= MAX_ADD_COUNT) {
-                //break;
-                throw new IllegalArgumentException("一年之中都未找到符合要求的时间,请检查您的cron表达式");
+                break;
+                //throw new IllegalArgumentException("一年之中都未找到符合要求的时间,请检查您的cron表达式");
             }
         }
         ///其实可以再一天天往下找直到找到为止
-        /*if(count >= MAX_ADD_COUNT){
-            return next(cron , calendar.getTime());
-        }*/
+        if(count >= MAX_ADD_COUNT){
+            return doNext(++addYear , calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek);
+        }
         return calendar.getTime();
     }
 
