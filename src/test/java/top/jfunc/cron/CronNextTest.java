@@ -82,6 +82,21 @@ public class CronNextTest {
 
         Date next1 = CronUtil.next(cron, date);
         Assert.assertEquals("2000-03-01 10:10:10" , DateUtil.toStr(next1));
+
+        date = DateUtil.toDate("2018-11-20 12:00:00");
+        cron = "10 10 12 ? * 2";
+        next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2018-11-20 12:10:10" , DateUtil.toStr(next));
+
+        next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2018-11-20 12:10:10" , DateUtil.toStr(next1));
+
+        cron = "10 10 12 ? * 0";
+        next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2018-11-25 12:10:10" , DateUtil.toStr(next));
+
+        next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2018-11-25 12:10:10" , DateUtil.toStr(next1));
     }
     @Test
     public void testNext8(){
