@@ -165,17 +165,6 @@ public class CronUtil {
     }
 
     /**
-     * 给定一个值,看是否满足cron表达示
-     * @param fieldValue 给定值
-     * @param field 域
-     * @return *或者值在集合中
-     */
-    private static boolean satisfy(Integer fieldValue, CronField field) {
-        //利用 || 的短路特性可以避免 points 计算 , 并且 points本身是有缓存的
-        return field.containsAll() || CompareUtil.inList(fieldValue, field.points());
-    }
-
-    /**
      * 设置时分秒域
      */
     private static void setHMS(Calendar calendar, TimeOfDay timeOfDay) {
@@ -208,21 +197,18 @@ public class CronUtil {
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
             CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
-            if (!assertExecute(year, fieldYear, fieldYear.points())) {
+            if (!satisfy(year, fieldYear)) {
                 return Collections.emptyList();
             }
         }
 
         CronField fieldWeek = cronFields.get(CronPosition.WEEK.getPosition());
-        List<Integer> listWeek = fieldWeek.points();
         CronField fieldMonth = cronFields.get(CronPosition.MONTH.getPosition());
-        List<Integer> listMonth = fieldMonth.points();
         CronField fieldDay = cronFields.get(CronPosition.DAY.getPosition());
-        List<Integer> listDay = fieldDay.points();
         ///今天不执行就直接返回空
-        if (!assertExecute(week, fieldWeek, listWeek)
-                || !assertExecute(month, fieldMonth, listMonth)
-                || !assertExecute(day, fieldDay, listDay)) {
+        if (!satisfy(week, fieldWeek)
+                || !satisfy(month, fieldMonth)
+                || !satisfy(day, fieldDay)) {
             return Collections.emptyList();
         }
 
@@ -244,8 +230,15 @@ public class CronUtil {
         return points;
     }
 
-    private static boolean assertExecute(int num, CronField cronField, List<Integer> list) {
-        return CronField.STAR.equals(cronField.getExpress()) || CompareUtil.inList(num, list);
+    /**
+     * 给定一个值,看是否满足cron表达示
+     * @param fieldValue 给定值
+     * @param field 域
+     * @return *或者值在集合中
+     */
+    private static boolean satisfy(Integer fieldValue, CronField field) {
+        //利用 || 的短路特性可以避免 points 计算 , 并且 points本身是有缓存的
+        return field.containsAll() || CompareUtil.inList(fieldValue, field.points());
     }
 
     /**
