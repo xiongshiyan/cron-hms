@@ -42,6 +42,13 @@ public class CronField {
     }
 
     /**
+     * 是否包含全部的数值
+     */
+    public boolean containsAll(){
+        return STAR.equals(getExpress());
+    }
+
+    /**
      * 3.计算某域的哪些点
      */
     public List<Integer> points() {
@@ -115,6 +122,10 @@ public class CronField {
         } else {
             // 普通的数字
             Integer single = Integer.valueOf(express);
+            //星期域上 7 转换为 0
+            if(CronPosition.WEEK == this.cronPosition && 7 == single){
+                single = 0;
+            }
             CompareUtil.assertRange(cronPosition, single);
             listCache.add(single);
             return listCache;

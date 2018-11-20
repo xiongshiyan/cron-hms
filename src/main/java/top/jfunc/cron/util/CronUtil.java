@@ -9,14 +9,14 @@ import java.util.*;
 /**
  * 一、根据cron表达式，计算某天的那些时刻执行。
  * 思路：1、切割cron表达式
- *      2、转换每个域
- *      3、计算执行时间点（关键算法，解析cron表达式）
- *      4、计算某一天的哪些时间点执行
+ * 2、转换每个域
+ * 3、计算执行时间点（关键算法，解析cron表达式）
+ * 4、计算某一天的哪些时间点执行
  * 二、根据cron表达式，给定Date，计算下一个执行时间点
  * 思路：1、找到所有时分秒的组合并按照时分秒排序
- *      2、给定的时分秒在以上集合之前、之后处理
- *      3、给定时时分秒在以上集合中找到一个最小的位置
- *      4、day+1循环直到找到满足月、星期的那一天
+ * 2、给定的时分秒在以上集合之前、之后处理
+ * 3、给定时时分秒在以上集合中找到一个最小的位置
+ * 4、day+1循环直到找到满足月、星期的那一天
  * {@link https://www.cnblogs.com/junrong624/p/4239517.html}
  * {@link https://www.cnblogs.com/summary-2017/p/8974139.html}
  *
@@ -39,18 +39,14 @@ public class CronUtil {
      */
     public static Date next(String cron, Date date) {
         List<CronField> cronFields = convertCronField(cron);
+
         CronField fieldSecond = cronFields.get(CronPosition.SECOND.getPosition());
-        List<Integer> listSecond = fieldSecond.points();
         CronField fieldMinute = cronFields.get(CronPosition.MINUTE.getPosition());
-        List<Integer> listMinute = fieldMinute.points();
         CronField fieldHour = cronFields.get(CronPosition.HOUR.getPosition());
-        List<Integer> listHour = fieldHour.points();
+
         CronField fieldDay = cronFields.get(CronPosition.DAY.getPosition());
-        List<Integer> listDay = fieldDay.points();
         CronField fieldMonth = cronFields.get(CronPosition.MONTH.getPosition());
-        List<Integer> listMonth = fieldMonth.points();
         CronField fieldWeek = cronFields.get(CronPosition.WEEK.getPosition());
-        List<Integer> listWeek = fieldWeek.points();
 
         Calendar calendar = Calendar.getInstance();
         //基准线
@@ -67,15 +63,21 @@ public class CronUtil {
             }
         }
 
-        return doNext(calendar, listHour, listMinute, listSecond, listDay, listMonth, listWeek);
+        return doNext(calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek);
     }
 
-    private static Date doNext(Calendar calendar, List<Integer> listHour, List<Integer> listMinute, List<Integer> listSecond, List<Integer> listDay, List<Integer> listMonth, List<Integer> listWeek) {
+    private static Date doNext(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek) {
         Date newDate = calendar.getTime();
         //先确定时分秒
         Integer hourNow = DateUtil.hour(newDate);
         Integer minuteNow = DateUtil.minute(newDate);
         Integer secondNow = DateUtil.second(newDate);
+
+
+        List<Integer> listHour = fieldHour.points();
+        List<Integer> listMinute = fieldMinute.points();
+        List<Integer> listSecond = fieldSecond.points();
+
 
         //找到所有时分秒的组合
         List<TimeOfDay> points = new ArrayList<>(listHour.size() * listMinute.size() * listSecond.size());
@@ -117,12 +119,13 @@ public class CronUtil {
         Integer month = DateUtil.month(tmp);
         Integer week = DateUtil.week(tmp);
 
-        ///天、月、周必须满足,否则加一天
+        ///天、月、周必须都满足,否则加一天
         int count = 0;
         boolean setting = false;
-        while (!CompareUtil.inList(day, listDay)
-                || !CompareUtil.inList(month, listMonth)
-                || !CompareUtil.inList(week, listWeek)) {
+        while (!satisfy(day, fieldDay)
+                || !satisfy(month , fieldMonth)
+                || !satisfy(week , fieldWeek) ) {
+
             calendar.add(Calendar.DAY_OF_MONTH, 1);
             Date t = calendar.getTime();
             day = DateUtil.day(t);
@@ -145,6 +148,17 @@ public class CronUtil {
             return next(cron , calendar.getTime());
         }*/
         return calendar.getTime();
+    }
+
+    /**
+     * 给定一个值,看是否满足cron表达示
+     * @param fieldValue 给定值
+     * @param field 域
+     * @return *或者值在集合中
+     */
+    private static boolean satisfy(Integer fieldValue, CronField field) {
+        //利用 || 的短路特性可以避免 points 计算 , 并且 points本身是有缓存的
+        return field.containsAll() || CompareUtil.inList(fieldValue, field.points());
     }
 
     /**
