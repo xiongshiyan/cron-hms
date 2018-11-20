@@ -58,7 +58,7 @@ public class CompareUtil {
     /**
      * 某个域的范围
      */
-    static void assertRange(CronPosition cronPosition, Integer value) {
+    public static void assertRange(CronPosition cronPosition, Integer value) {
         Integer min = cronPosition.getMin();
         Integer max = cronPosition.getMax();
         if (value < min || value > max) {

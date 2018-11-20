@@ -17,14 +17,12 @@ import java.util.*;
  *      2、给定的时分秒在以上集合之前、之后处理
  *      3、给定时时分秒在以上集合中找到一个最小的位置
  *      4、day+1循环直到找到满足月、星期的那一天
+ * {@link https://www.cnblogs.com/junrong624/p/4239517.html}
+ * {@link https://www.cnblogs.com/summary-2017/p/8974139.html}
  *
  * @author xiongshiyan at 2018/11/17 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public class CronUtil {
-    private static final String STAR = "*";
-    private static final String COMMA = ",";
-    private static final String HYPHEN = "-";
-    private static final String SLASH = "/";
     private static final int CRON_LEN = 6;
     private static final int CRON_LEN_YEAR = 7;
     private static final String CRON_CUT = "\\s+";
@@ -42,17 +40,17 @@ public class CronUtil {
     public static Date next(String cron, Date date) {
         List<CronField> cronFields = convertCronField(cron);
         CronField fieldSecond = cronFields.get(CronPosition.SECOND.getPosition());
-        List<Integer> listSecond = calculatePoint(fieldSecond);
+        List<Integer> listSecond = fieldSecond.calculatePoint();
         CronField fieldMinute = cronFields.get(CronPosition.MINUTE.getPosition());
-        List<Integer> listMinute = calculatePoint(fieldMinute);
+        List<Integer> listMinute = fieldMinute.calculatePoint();
         CronField fieldHour = cronFields.get(CronPosition.HOUR.getPosition());
-        List<Integer> listHour = calculatePoint(fieldHour);
+        List<Integer> listHour = fieldHour.calculatePoint();
         CronField fieldDay = cronFields.get(CronPosition.DAY.getPosition());
-        List<Integer> listDay = calculatePoint(fieldDay);
+        List<Integer> listDay = fieldDay.calculatePoint();
         CronField fieldMonth = cronFields.get(CronPosition.MONTH.getPosition());
-        List<Integer> listMonth = calculatePoint(fieldMonth);
+        List<Integer> listMonth = fieldMonth.calculatePoint();
         CronField fieldWeek = cronFields.get(CronPosition.WEEK.getPosition());
-        List<Integer> listWeek = calculatePoint(fieldWeek);
+        List<Integer> listWeek = fieldWeek.calculatePoint();
 
         Calendar calendar = Calendar.getInstance();
         //基准线
@@ -62,7 +60,7 @@ public class CronUtil {
         if (CRON_LEN_YEAR == cronFields.size()) {
             Integer year = DateUtil.year(date);
             CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
-            List<Integer> listYear = calculatePoint(fieldYear);
+            List<Integer> listYear = fieldYear.calculatePoint();
             Integer calYear = CompareUtil.findNext(year, listYear);
             if (!year.equals(calYear)) {
                 calendar.set(Calendar.YEAR, calYear);
@@ -180,17 +178,17 @@ public class CronUtil {
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
             CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
-            if (!assertExecute(year, fieldYear, calculatePoint(fieldYear))) {
+            if (!assertExecute(year, fieldYear, fieldYear.calculatePoint())) {
                 return Collections.emptyList();
             }
         }
 
         CronField fieldWeek = cronFields.get(CronPosition.WEEK.getPosition());
-        List<Integer> listWeek = calculatePoint(fieldWeek);
+        List<Integer> listWeek = fieldWeek.calculatePoint();
         CronField fieldMonth = cronFields.get(CronPosition.MONTH.getPosition());
-        List<Integer> listMonth = calculatePoint(fieldMonth);
+        List<Integer> listMonth = fieldMonth.calculatePoint();
         CronField fieldDay = cronFields.get(CronPosition.DAY.getPosition());
-        List<Integer> listDay = calculatePoint(fieldDay);
+        List<Integer> listDay = fieldDay.calculatePoint();
         ///今天不执行就直接返回空
         if (!assertExecute(week, fieldWeek, listWeek)
                 || !assertExecute(month, fieldMonth, listMonth)
@@ -199,11 +197,11 @@ public class CronUtil {
         }
 
         CronField fieldHour = cronFields.get(CronPosition.HOUR.getPosition());
-        List<Integer> listHour = calculatePoint(fieldHour);
+        List<Integer> listHour = fieldHour.calculatePoint();
         CronField fieldMinute = cronFields.get(CronPosition.MINUTE.getPosition());
-        List<Integer> listMinute = calculatePoint(fieldMinute);
+        List<Integer> listMinute = fieldMinute.calculatePoint();
         CronField fieldSecond = cronFields.get(CronPosition.SECOND.getPosition());
-        List<Integer> listSecond = calculatePoint(fieldSecond);
+        List<Integer> listSecond = fieldSecond.calculatePoint();
 
         List<TimeOfDay> points = new ArrayList<>(listHour.size() * listMinute.size() * listSecond.size());
         for (Integer hour : listHour) {
@@ -217,92 +215,7 @@ public class CronUtil {
     }
 
     private static boolean assertExecute(int num, CronField cronField, List<Integer> list) {
-        return STAR.equals(cronField.getExpress()) || CompareUtil.inList(num, list);
-    }
-
-
-    /**
-     * 3.计算某域的哪些点
-     *
-     * @param cronField cron域
-     */
-    public static List<Integer> calculatePoint(CronField cronField) {
-        List<Integer> list = new ArrayList<>(5);
-        String express = cronField.getExpress();
-        CronPosition cronPosition = cronField.getCronPosition();
-        Integer min = cronPosition.getMin();
-        Integer max = cronPosition.getMax();
-
-        // *这种情况
-        if (STAR.equals(express)) {
-            for (int i = min; i <= max; i++) {
-                list.add(i);
-            }
-            return list;
-        }
-        // 带有,的情况,分割之后每部分单独处理
-        if (express.contains(COMMA)) {
-            String[] split = express.split(COMMA);
-            for (String part : split) {
-                list.addAll(calculatePoint(
-                        new CronField(cronField.getCronPosition(), part)
-                ));
-            }
-            if (list.size() > 1) {
-                //去重
-                CompareUtil.removeDuplicate(list);
-                //排序
-                Collections.sort(list);
-            }
-
-            return list;
-        }
-        // 0-3 0/2 3-15/2 5  模式统一为 (min-max)/step
-        Integer left;
-        Integer right;
-        Integer step = 1;
-
-        //包含-的情况
-        if (express.contains(HYPHEN)) {
-            String[] strings = express.split(HYPHEN);
-            left = Integer.valueOf(strings[0]);
-            CompareUtil.assertRange(cronPosition, left);
-            //1-32/2的情况
-            if (strings[1].contains(SLASH)) {
-                String[] split = strings[1].split(SLASH);
-                //32
-                right = Integer.valueOf(split[0]);
-                CompareUtil.assertSize(left, right);
-                CompareUtil.assertRange(cronPosition, right);
-                //2
-                step = Integer.valueOf(split[1]);
-            } else {
-                //1-32的情况
-                right = Integer.valueOf(strings[1]);
-                CompareUtil.assertSize(left, right);
-                CompareUtil.assertRange(cronPosition, right);
-            }
-            //仅仅包含/
-        } else if (express.contains(SLASH)) {
-            String[] strings = express.split(SLASH);
-            left = Integer.valueOf(strings[0]);
-            CompareUtil.assertRange(cronPosition, left);
-            step = Integer.valueOf(strings[1]);
-            right = max;
-            CompareUtil.assertSize(left, right);
-        } else {
-            // 普通的数字
-            Integer single = Integer.valueOf(express);
-            CompareUtil.assertRange(cronPosition, single);
-            list.add(single);
-            return list;
-        }
-
-        for (int i = left; i <= right; i += step) {
-            list.add(i);
-        }
-        return list;
-
+        return CronField.STAR.equals(cronField.getExpress()) || CompareUtil.inList(num, list);
     }
 
     /**

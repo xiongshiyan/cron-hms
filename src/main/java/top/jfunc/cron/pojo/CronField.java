@@ -1,10 +1,21 @@
 package top.jfunc.cron.pojo;
 
+import top.jfunc.cron.util.CompareUtil;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 /**
  * cron表达式的域
  * @author xiongshiyan
  */
 public class CronField {
+    public static final String STAR = "*";
+    public static final String COMMA = ",";
+    public static final String HYPHEN = "-";
+    public static final String SLASH = "/";
+
     private CronPosition cronPosition;
     private String express;
 
@@ -27,6 +38,87 @@ public class CronField {
 
     public void setExpress(String express) {
         this.express = express;
+    }
+
+
+    /**
+     * 3.计算某域的哪些点
+     */
+    public List<Integer> calculatePoint() {
+        List<Integer> list = new ArrayList<>(5);
+        String express = this.getExpress();
+        CronPosition cronPosition = this.getCronPosition();
+        Integer min = cronPosition.getMin();
+        Integer max = cronPosition.getMax();
+
+        // *这种情况
+        if (STAR.equals(express)) {
+            for (int i = min; i <= max; i++) {
+                list.add(i);
+            }
+            return list;
+        }
+        // 带有,的情况,分割之后每部分单独处理
+        if (express.contains(COMMA)) {
+            String[] split = express.split(COMMA);
+            for (String part : split) {
+                list.addAll( new CronField(this.getCronPosition(), part).calculatePoint());
+            }
+            if (list.size() > 1) {
+                //去重
+                CompareUtil.removeDuplicate(list);
+                //排序
+                Collections.sort(list);
+            }
+
+            return list;
+        }
+        // 0-3 0/2 3-15/2 5  模式统一为 (min-max)/step
+        Integer left;
+        Integer right;
+        Integer step = 1;
+
+        //包含-的情况
+        if (express.contains(HYPHEN)) {
+            String[] strings = express.split(HYPHEN);
+            left = Integer.valueOf(strings[0]);
+            CompareUtil.assertRange(cronPosition, left);
+            //1-32/2的情况
+            if (strings[1].contains(SLASH)) {
+                String[] split = strings[1].split(SLASH);
+                //32
+                right = Integer.valueOf(split[0]);
+                CompareUtil.assertSize(left, right);
+                CompareUtil.assertRange(cronPosition, right);
+                //2
+                step = Integer.valueOf(split[1]);
+            } else {
+                //1-32的情况
+                right = Integer.valueOf(strings[1]);
+                CompareUtil.assertSize(left, right);
+                CompareUtil.assertRange(cronPosition, right);
+            }
+            //仅仅包含/
+        } else if (express.contains(SLASH)) {
+            String[] strings = express.split(SLASH);
+            left = Integer.valueOf(strings[0]);
+            CompareUtil.assertRange(cronPosition, left);
+            step = Integer.valueOf(strings[1]);
+            right = max;
+            CompareUtil.assertSize(left, right);
+        } else {
+            // 普通的数字
+            Integer single = Integer.valueOf(express);
+            CompareUtil.assertRange(cronPosition, single);
+            list.add(single);
+            return list;
+        }
+
+        for (int i = left; i <= right; i += step) {
+            list.add(i);
+        }
+        return list;
+
     }
 
     @Override
