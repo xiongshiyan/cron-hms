@@ -18,6 +18,7 @@ public class CronField {
 
     private CronPosition cronPosition;
     private String express;
+    private List<Integer> listCache = null;
 
     public CronField(CronPosition cronPosition, String express) {
         this.cronPosition = cronPosition;
@@ -40,12 +41,17 @@ public class CronField {
         this.express = express;
     }
 
-
     /**
      * 3.计算某域的哪些点
      */
-    public List<Integer> calculatePoint() {
-        List<Integer> list = new ArrayList<>(5);
+    public List<Integer> points() {
+        //缓存计算的
+        if(null != listCache){
+            return listCache;
+        }
+
+        listCache = new ArrayList<>(5);
+
         String express = this.getExpress();
         CronPosition cronPosition = this.getCronPosition();
         Integer min = cronPosition.getMin();
@@ -54,24 +60,24 @@ public class CronField {
         // *这种情况
         if (STAR.equals(express)) {
             for (int i = min; i <= max; i++) {
-                list.add(i);
+                listCache.add(i);
             }
-            return list;
+            return listCache;
         }
         // 带有,的情况,分割之后每部分单独处理
         if (express.contains(COMMA)) {
             String[] split = express.split(COMMA);
             for (String part : split) {
-                list.addAll( new CronField(this.getCronPosition(), part).calculatePoint());
+                listCache.addAll( new CronField(this.getCronPosition(), part).points());
             }
-            if (list.size() > 1) {
+            if (listCache.size() > 1) {
                 //去重
-                CompareUtil.removeDuplicate(list);
+                CompareUtil.removeDuplicate(listCache);
                 //排序
-                Collections.sort(list);
+                Collections.sort(listCache);
             }
 
-            return list;
+            return listCache;
         }
         // 0-3 0/2 3-15/2 5  模式统一为 (min-max)/step
         Integer left;
@@ -110,14 +116,14 @@ public class CronField {
             // 普通的数字
             Integer single = Integer.valueOf(express);
             CompareUtil.assertRange(cronPosition, single);
-            list.add(single);
-            return list;
+            listCache.add(single);
+            return listCache;
         }
 
         for (int i = left; i <= right; i += step) {
-            list.add(i);
+            listCache.add(i);
         }
-        return list;
+        return listCache;
 
     }
 

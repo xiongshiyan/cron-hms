@@ -72,12 +72,12 @@ public class CronTest {
     @Test
     public void testConvertCronField(){
         List<CronField> cronFields = CronUtil.convertCronField("1 0-5 1/3 1,3,4 1-11/2 ?");
-        Assert.assertEquals(Collections.singletonList(1) , cronFields.get(0).calculatePoint());
-        Assert.assertEquals(Arrays.asList(0,1,2,3,4,5) , cronFields.get(1).calculatePoint());
-        Assert.assertEquals(Arrays.asList(1,4,7,10,13,16,19,22) , cronFields.get(2).calculatePoint());
-        Assert.assertEquals(Arrays.asList(1,3,4) , cronFields.get(3).calculatePoint());
-        Assert.assertEquals(Arrays.asList(1,3,5,7,9,11) , cronFields.get(4).calculatePoint());
-        Assert.assertEquals(Arrays.asList(0,1,2,3,4,5,6) , cronFields.get(5).calculatePoint());
+        Assert.assertEquals(Collections.singletonList(1) , cronFields.get(0).points());
+        Assert.assertEquals(Arrays.asList(0,1,2,3,4,5) , cronFields.get(1).points());
+        Assert.assertEquals(Arrays.asList(1,4,7,10,13,16,19,22) , cronFields.get(2).points());
+        Assert.assertEquals(Arrays.asList(1,3,4) , cronFields.get(3).points());
+        Assert.assertEquals(Arrays.asList(1,3,5,7,9,11) , cronFields.get(4).points());
+        Assert.assertEquals(Arrays.asList(0,1,2,3,4,5,6) , cronFields.get(5).points());
     }
 
     @Test
