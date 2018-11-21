@@ -82,7 +82,52 @@ public class CronUtil {
         }
 
         //////////////////////////////////时分秒///////////////////////////////
+        TimeOfDay timeOfDayMin = doTimeOfDay(calendar, fieldSecond, fieldMinute, fieldHour);
 
+
+        Date tmp = calendar.getTime();
+        Integer day = DateUtil.day(tmp);
+        Integer month = DateUtil.month(tmp);
+        Integer week = DateUtil.week(tmp);
+
+        ////////////////////////////////循环处理日直到满足日/月/周///////////////////////////////
+        ///天、月、周必须都满足,否则加一天
+        int count = 0;
+        boolean setting = false;
+        while (!satisfy(day, fieldDay)
+                || !satisfy(month , fieldMonth)
+                || !satisfy(week , fieldWeek) ) {
+
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+            Date t = calendar.getTime();
+            day = DateUtil.day(t);
+            month = DateUtil.month(t);
+            week = DateUtil.week(t);
+            //加了一天的情况下,时分秒就可以用最小的了,只需要设置一次
+            if (!setting) {
+                setTimeOfDay(calendar, timeOfDayMin);
+                setting = true;
+            }
+            count++;
+            //极端情况下：这尼玛太坑了,一般遇不到:加了一年还未找到
+            if (count >= MAX_ADD_COUNT) {
+                //不抛异常再一天天往下找
+                return doNext(++addYear , calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
+                //throw new IllegalArgumentException("一年之中都未找到符合要求的时间,请检查您的cron表达式");
+            }
+        }
+
+        ///此时除开年域其他域都满足了,这个时候的年不一定满足,找到一个满足的年，这时又需要去计算日月周
+        //处理年域
+        doYear(calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
+
+        return calendar.getTime();
+    }
+
+    /**
+     * 处理时分秒，并返回最小的时分秒
+     */
+    private static TimeOfDay doTimeOfDay(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour) {
         //先确定时分秒
         Date newDate = calendar.getTime();
         Integer hourNow = DateUtil.hour(newDate);
@@ -129,46 +174,12 @@ public class CronUtil {
             TimeOfDay next = CompareUtil.findNext(timeOfDayNow, points);
             setTimeOfDay(calendar, next);
         }
-
-        Date tmp = calendar.getTime();
-        Integer day = DateUtil.day(tmp);
-        Integer month = DateUtil.month(tmp);
-        Integer week = DateUtil.week(tmp);
-
-        ////////////////////////////////循环处理日直到满足日/月/周///////////////////////////////
-        ///天、月、周必须都满足,否则加一天
-        int count = 0;
-        boolean setting = false;
-        while (!satisfy(day, fieldDay)
-                || !satisfy(month , fieldMonth)
-                || !satisfy(week , fieldWeek) ) {
-
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-            Date t = calendar.getTime();
-            day = DateUtil.day(t);
-            month = DateUtil.month(t);
-            week = DateUtil.week(t);
-            //加了一天的情况下,时分秒就可以用最小的了,只需要设置一次
-            if (!setting) {
-                setTimeOfDay(calendar, timeOfDayMin);
-                setting = true;
-            }
-            count++;
-            //极端情况下：这尼玛太坑了,一般遇不到:加了一年还未找到
-            if (count >= MAX_ADD_COUNT) {
-                //不抛异常再一天天往下找
-                return doNext(++addYear , calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
-                //throw new IllegalArgumentException("一年之中都未找到符合要求的时间,请检查您的cron表达式");
-            }
-        }
-
-        ///此时除开年域其他域都满足了,这个时候的年不一定满足,找到一个满足的年，这时又需要去计算日月周
-        //处理年域
-        doYear(calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
-
-        return calendar.getTime();
+        return timeOfDayMin;
     }
 
+    /**
+     * 处理年域
+     */
     private static void doYear(Calendar calendar, CronField fieldDay, CronField fieldMonth, CronField fieldWeek, CronField fieldYear, TimeOfDay timeOfDayMin) {
         //说明没有年域
         if(null == fieldYear){
@@ -190,6 +201,9 @@ public class CronUtil {
         }
     }
 
+    /**
+     * 找到并设置日月，并返回是否找到
+     */
     private static boolean findAndSettingDayAndMonth(Calendar calendar, List<Integer> days, List<Integer> months, List<Integer> weeks) {
         //从小到大循环月-日
         for (Integer m : months) {
