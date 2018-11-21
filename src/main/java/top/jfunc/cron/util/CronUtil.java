@@ -170,42 +170,39 @@ public class CronUtil {
     }
 
     private static void doYear(Calendar calendar, CronField fieldDay, CronField fieldMonth, CronField fieldWeek, CronField fieldYear, TimeOfDay timeOfDayMin) {
-        //说明有年域
-        if(null != fieldYear){
-            List<Integer> listYear = fieldYear.points();
-
-            boolean success = false;
-            for (Integer y : listYear) {
-                calendar.set(Calendar.YEAR, y);
-                Date time = calendar.getTime();
-
-                List<Integer> days = fieldDay.points();
-                List<Integer> months = fieldMonth.points();
-
-                //从小到大循环月-日
-                for (Integer m : months) {
-                    for (Integer d : days) {
-                        calendar.set(Calendar.DAY_OF_MONTH , d);
-                        calendar.set(Calendar.MONTH , m - 1);
-                        if(CompareUtil.inList(DateUtil.week(time) , fieldWeek.points())){
-                            //找到满足的月日
-                            success = true;
-                            break;
-                        }
-                    }
-                }
-                //年月日都满足
-                if(success){
-                    //时分秒设置最小
-                    setTimeOfDay(calendar, timeOfDayMin);
-                    break;
-                }
-            }
-
-            if(!success){
-                throw new IllegalArgumentException("无法找到满足的下一个执行时间,请检查cron表达式");
+        //说明没有年域
+        if(null == fieldYear){
+            return;
+        }
+        boolean success = false;
+        for (Integer y : fieldYear.points()) {
+            calendar.set(Calendar.YEAR, y);
+            success = findAndSettingDayAndMonth(calendar, fieldDay.points(), fieldMonth.points(), fieldWeek.points());
+            //年月日都满足
+            if(success){
+                //时分秒设置最小
+                setTimeOfDay(calendar, timeOfDayMin);
+                break;
             }
         }
+        if(!success){
+            throw new IllegalArgumentException("无法找到满足的下一个执行时间,请检查cron表达式");
+        }
+    }
+
+    private static boolean findAndSettingDayAndMonth(Calendar calendar, List<Integer> days, List<Integer> months, List<Integer> weeks) {
+        //从小到大循环月-日
+        for (Integer m : months) {
+            for (Integer d : days) {
+                calendar.set(Calendar.DAY_OF_MONTH , d);
+                calendar.set(Calendar.MONTH , m - 1);
+                if(CompareUtil.inList(DateUtil.week(calendar.getTime()) , weeks)){
+                    //找到满足的月日
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
