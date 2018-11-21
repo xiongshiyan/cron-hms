@@ -17,21 +17,6 @@ import java.util.List;
  */
 public class CronTest {
     @Test
-    public void testCalculate() {
-        Date date = DateUtil.toDate("2018-11-17 12:00:12");
-        Assert.assertEquals(2018, DateUtil.year(date));
-        Assert.assertEquals(11, DateUtil.month(date));
-        Assert.assertEquals(6, DateUtil.week(date));
-        Assert.assertEquals(17, DateUtil.day(date));
-        Assert.assertEquals(12, DateUtil.hour(date));
-        Assert.assertEquals(0, DateUtil.minute(date));
-        Assert.assertEquals(12, DateUtil.second(date));
-
-        date = DateUtil.toDate("2018-11-18 12:00:12");
-        Assert.assertEquals(0, DateUtil.week(date));
-    }
-
-    @Test
     public void testCut() {
         String cron = "0     15    10   ? *    *   ";
         Assert.assertEquals(

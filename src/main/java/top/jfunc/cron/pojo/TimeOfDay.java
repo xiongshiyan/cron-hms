@@ -1,5 +1,9 @@
 package top.jfunc.cron.pojo;
 
+import top.jfunc.cron.util.DateUtil;
+
+import java.util.Calendar;
+
 /**
  * 保存时分秒
  * @author xiongshiyan at 2018/11/18 , contact me with email yanshixiong@126.com or phone 15208384257
@@ -92,5 +96,9 @@ public final class TimeOfDay implements Comparable<TimeOfDay> {
             return -1;
         }
         return 0;
+    }
+
+    public boolean equalsWithTolerance(TimeOfDay another , int seconds){
+        return DateUtil.equalsWithTolerance(this , another, seconds);
     }
 }

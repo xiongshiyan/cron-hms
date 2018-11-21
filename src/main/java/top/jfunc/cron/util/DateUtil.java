@@ -1,5 +1,7 @@
 package top.jfunc.cron.util;
 
+import top.jfunc.cron.pojo.TimeOfDay;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -135,5 +137,32 @@ public class DateUtil {
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
         return cal.get(Calendar.SECOND);
+    }
+
+    /**
+     * 计算两个时分秒时间的差距是否在给定的容忍范围内
+     * @param one 比较的一方
+     * @param two 比较的另外一方
+     * @param seconds 容忍范围
+     * @return true if in the range of seconds or false if out of the range
+     */
+    public static boolean equalsWithTolerance(TimeOfDay one , TimeOfDay two, Integer seconds) {
+        //秒数为0退化为equals
+        if(null == seconds || 0 == seconds){
+            return one.equals(two);
+        }
+        Calendar calendar1 = Calendar.getInstance();
+        calendar1.set(Calendar.HOUR_OF_DAY , one.getHour());
+        calendar1.set(Calendar.MINUTE , one.getMinute());
+        calendar1.set(Calendar.SECOND , one.getSecond());
+
+        Calendar calendar2 = Calendar.getInstance();
+        calendar2.set(Calendar.HOUR_OF_DAY , two.getHour());
+        calendar2.set(Calendar.MINUTE , two.getMinute());
+        calendar2.set(Calendar.SECOND , two.getSecond());
+
+        //秒数是否在给定的容忍范围内
+        long abs = Math.abs(calendar1.getTimeInMillis() / 1000 - calendar2.getTimeInMillis() / 1000);
+        return abs <= seconds;
     }
 }
