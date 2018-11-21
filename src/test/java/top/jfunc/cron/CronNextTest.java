@@ -223,6 +223,30 @@ public class CronNextTest {
         Date next1 = CronUtil.next(cron, date);
         Assert.assertEquals("2025-03-03 23:15:02" , DateUtil.toStr(next1));
     }
+
+    /**
+     * 有年域，满足
+     */
+    @Test
+    public void testNext19(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 1 2019,2025";
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2025-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
+
+    /**
+     * 有年域的，不满足
+     */
+    @Test(expected = IllegalArgumentException.class)
+    public void testNext20(){
+        Date date = DateUtil.toDate("2018-11-18 12:00:12");
+        String cron = "2 15 23 3 3 1 2018,2019,2024";
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2025-03-03 23:15:02" , DateUtil.toStr(next1));
+    }
     /**
      * 一个比较复杂的表达式来测试 benchmark
      * 1.由于Spring使用了BitSet数据结构，操作都是位运算，所以速度较快

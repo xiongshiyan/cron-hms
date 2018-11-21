@@ -54,10 +54,11 @@ public class CronUtil {
         calendar.setTime(date);
         calendar.add(Calendar.SECOND , 1);
 
+        CronField fieldYear = null;
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
             Integer year = DateUtil.year(date);
-            CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
+            fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
             List<Integer> listYear = fieldYear.points();
             Integer calYear = CompareUtil.findNext(year, listYear);
             if (!year.equals(calYear)) {
@@ -65,10 +66,10 @@ public class CronUtil {
             }
         }
 
-        return doNext(0, calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek);
+        return doNext(0, calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
     }
 
-    private static Date doNext(int addYear , Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek) {
+    private static Date doNext(int addYear , Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear) {
         if(addYear >= MAX_ADD_YEAR){
             throw new IllegalArgumentException("Invalid cron expression \"" +
                     (fieldSecond.getExpress() + " "
@@ -80,10 +81,10 @@ public class CronUtil {
                     + "\" which led to runaway search for next trigger");
         }
 
-
         //////////////////////////////////时分秒///////////////////////////////
-        Date newDate = calendar.getTime();
+
         //先确定时分秒
+        Date newDate = calendar.getTime();
         Integer hourNow = DateUtil.hour(newDate);
         Integer minuteNow = DateUtil.minute(newDate);
         Integer secondNow = DateUtil.second(newDate);
@@ -134,7 +135,7 @@ public class CronUtil {
         Integer month = DateUtil.month(tmp);
         Integer week = DateUtil.week(tmp);
 
-        ////////////////////////////////循环处理日知道满足日/月/周///////////////////////////////
+        ////////////////////////////////循环处理日直到满足日/月/周///////////////////////////////
         ///天、月、周必须都满足,否则加一天
         int count = 0;
         boolean setting = false;
@@ -156,11 +157,55 @@ public class CronUtil {
             //极端情况下：这尼玛太坑了,一般遇不到:加了一年还未找到
             if (count >= MAX_ADD_COUNT) {
                 //不抛异常再一天天往下找
-                return doNext(++addYear , calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek);
+                return doNext(++addYear , calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
                 //throw new IllegalArgumentException("一年之中都未找到符合要求的时间,请检查您的cron表达式");
             }
         }
+
+        ///此时除开年域其他域都满足了,这个时候的年不一定满足,找到一个满足的年，这时又需要去计算日月周
+        //处理年域
+        doYear(calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
+
         return calendar.getTime();
+    }
+
+    private static void doYear(Calendar calendar, CronField fieldDay, CronField fieldMonth, CronField fieldWeek, CronField fieldYear, TimeOfDay timeOfDayMin) {
+        //说明有年域
+        if(null != fieldYear){
+            List<Integer> listYear = fieldYear.points();
+
+            boolean success = false;
+            for (Integer y : listYear) {
+                calendar.set(Calendar.YEAR, y);
+                Date time = calendar.getTime();
+
+                List<Integer> days = fieldDay.points();
+                List<Integer> months = fieldMonth.points();
+
+                //从小到大循环月-日
+                for (Integer m : months) {
+                    for (Integer d : days) {
+                        calendar.set(Calendar.DAY_OF_MONTH , d);
+                        calendar.set(Calendar.MONTH , m - 1);
+                        if(CompareUtil.inList(DateUtil.week(time) , fieldWeek.points())){
+                            //找到满足的月日
+                            success = true;
+                            break;
+                        }
+                    }
+                }
+                //年月日都满足
+                if(success){
+                    //时分秒设置最小
+                    setTimeOfDay(calendar, timeOfDayMin);
+                    break;
+                }
+            }
+
+            if(!success){
+                throw new IllegalArgumentException("无法找到满足的下一个执行时间,请检查cron表达式");
+            }
+        }
     }
 
     /**
