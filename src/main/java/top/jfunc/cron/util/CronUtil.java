@@ -43,11 +43,11 @@ public class CronUtil {
 
         CronField fieldSecond = cronFields.get(CronPosition.SECOND.getPosition());
         CronField fieldMinute = cronFields.get(CronPosition.MINUTE.getPosition());
-        CronField fieldHour = cronFields.get(CronPosition.HOUR.getPosition());
+        CronField fieldHour   = cronFields.get(CronPosition.HOUR.getPosition());
 
-        CronField fieldDay = cronFields.get(CronPosition.DAY.getPosition());
-        CronField fieldMonth = cronFields.get(CronPosition.MONTH.getPosition());
-        CronField fieldWeek = cronFields.get(CronPosition.WEEK.getPosition());
+        CronField fieldDay    = cronFields.get(CronPosition.DAY.getPosition());
+        CronField fieldMonth  = cronFields.get(CronPosition.MONTH.getPosition());
+        CronField fieldWeek   = cronFields.get(CronPosition.WEEK.getPosition());
 
         Calendar calendar = Calendar.getInstance();
         //基准线,至少从下一秒开始
@@ -85,10 +85,10 @@ public class CronUtil {
         TimeOfDay timeOfDayMin = doTimeOfDay(calendar, fieldSecond, fieldMinute, fieldHour);
 
 
-        Date tmp = calendar.getTime();
-        Integer day = DateUtil.day(tmp);
+        Date tmp      = calendar.getTime();
+        Integer day   = DateUtil.day(tmp);
         Integer month = DateUtil.month(tmp);
-        Integer week = DateUtil.week(tmp);
+        Integer week  = DateUtil.week(tmp);
 
         ////////////////////////////////循环处理日直到满足日/月/周///////////////////////////////
         ///天、月、周必须都满足,否则加一天
@@ -129,13 +129,13 @@ public class CronUtil {
      */
     private static TimeOfDay doTimeOfDay(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour) {
         //先确定时分秒
-        Date newDate = calendar.getTime();
-        Integer hourNow = DateUtil.hour(newDate);
-        Integer minuteNow = DateUtil.minute(newDate);
-        Integer secondNow = DateUtil.second(newDate);
+        Date newDate       = calendar.getTime();
+        Integer hourNow    = DateUtil.hour(newDate);
+        Integer minuteNow  = DateUtil.minute(newDate);
+        Integer secondNow  = DateUtil.second(newDate);
 
 
-        List<Integer> listHour = fieldHour.points();
+        List<Integer> listHour   = fieldHour.points();
         List<Integer> listMinute = fieldMinute.points();
         List<Integer> listSecond = fieldSecond.points();
 
@@ -152,10 +152,10 @@ public class CronUtil {
         //排序
         Collections.sort(points);
 
-        TimeOfDay timeOfDayNow = new TimeOfDay(hourNow, minuteNow, secondNow);
+        TimeOfDay timeOfDayNow   = new TimeOfDay(hourNow, minuteNow, secondNow);
         //小于最小的
-        TimeOfDay timeOfDayMin = points.get(0);
-        TimeOfDay timeOfDayMax = points.get(points.size() - 1);
+        TimeOfDay timeOfDayMin   = points.get(0);
+        TimeOfDay timeOfDayMax   = points.get(points.size() - 1);
         if (timeOfDayNow.compareTo(timeOfDayMin) < 0) {
             setTimeOfDay(calendar, timeOfDayMin);
             //大于最大的
@@ -245,10 +245,10 @@ public class CronUtil {
      */
     public static List<TimeOfDay> calculate(String cron, Date date) {
         List<CronField> cronFields = convertCronField(cron);
-        int year = DateUtil.year(date);
-        int week = DateUtil.week(date);
+        int year  = DateUtil.year(date);
+        int week  = DateUtil.week(date);
         int month = DateUtil.month(date);
-        int day = DateUtil.day(date);
+        int day   = DateUtil.day(date);
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
             CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
@@ -257,9 +257,9 @@ public class CronUtil {
             }
         }
 
-        CronField fieldWeek = cronFields.get(CronPosition.WEEK.getPosition());
+        CronField fieldWeek  = cronFields.get(CronPosition.WEEK.getPosition());
         CronField fieldMonth = cronFields.get(CronPosition.MONTH.getPosition());
-        CronField fieldDay = cronFields.get(CronPosition.DAY.getPosition());
+        CronField fieldDay   = cronFields.get(CronPosition.DAY.getPosition());
         ///今天不执行就直接返回空
         if (!satisfy(week, fieldWeek)
                 || !satisfy(month, fieldMonth)
@@ -267,11 +267,11 @@ public class CronUtil {
             return Collections.emptyList();
         }
 
-        CronField fieldHour = cronFields.get(CronPosition.HOUR.getPosition());
-        List<Integer> listHour = fieldHour.points();
-        CronField fieldMinute = cronFields.get(CronPosition.MINUTE.getPosition());
+        CronField fieldHour      = cronFields.get(CronPosition.HOUR.getPosition());
+        List<Integer> listHour   = fieldHour.points();
+        CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.getPosition());
         List<Integer> listMinute = fieldMinute.points();
-        CronField fieldSecond = cronFields.get(CronPosition.SECOND.getPosition());
+        CronField fieldSecond    = cronFields.get(CronPosition.SECOND.getPosition());
         List<Integer> listSecond = fieldSecond.points();
 
         List<TimeOfDay> points = new ArrayList<>(listHour.size() * listMinute.size() * listSecond.size());
