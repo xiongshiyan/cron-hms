@@ -14,6 +14,16 @@ import java.util.Date;
  */
 public class CronNextTest {
     @Test
+    public void testNext0(){
+        Date date = DateUtil.toDate("2018-11-23 18:50:00");
+        String cron = "0 30 2 ? * WED";
+        Date next = new CronSequenceGenerator(cron).next(date);
+        Assert.assertEquals("2018-11-28 02:30:00" , DateUtil.toStr(next));
+
+        Date next1 = CronUtil.next(cron, date);
+        Assert.assertEquals("2018-11-28 02:30:00" , DateUtil.toStr(next1));
+    }
+    @Test
     public void testNext1(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
         String cron = "2 15 12 ? * *";
