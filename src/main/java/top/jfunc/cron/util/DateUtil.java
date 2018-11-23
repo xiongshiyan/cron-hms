@@ -151,6 +151,11 @@ public class DateUtil {
         if(null == seconds || 0 == seconds){
             return one.equals(two);
         }
+        //秒数是否在给定的容忍范围内
+        return distance(one, two) <= seconds;
+    }
+
+    public static long distance(TimeOfDay one , TimeOfDay two) {
         Calendar calendar1 = Calendar.getInstance();
         calendar1.set(Calendar.HOUR_OF_DAY , one.getHour());
         calendar1.set(Calendar.MINUTE , one.getMinute());
@@ -162,7 +167,6 @@ public class DateUtil {
         calendar2.set(Calendar.SECOND , two.getSecond());
 
         //秒数是否在给定的容忍范围内
-        long abs = Math.abs(calendar1.getTimeInMillis() / 1000 - calendar2.getTimeInMillis() / 1000);
-        return abs <= seconds;
+        return Math.abs(calendar1.getTimeInMillis() / 1000 - calendar2.getTimeInMillis() / 1000);
     }
 }

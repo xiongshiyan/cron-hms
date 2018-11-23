@@ -28,16 +28,18 @@ public class DateUtilTest {
 
     @Test
     public void testEqualsWithTolerance() {
-        TimeOfDay one = new TimeOfDay(1,2,3);
-        TimeOfDay two = new TimeOfDay(1,2,3);
+        TimeOfDay base = new TimeOfDay(1,2,3);
 
-        Assert.assertTrue(one.equalsWithTolerance(two,0));
+        Assert.assertTrue(base.equalsWithTolerance(new TimeOfDay(1,2,3),0));
 
-        Assert.assertTrue(one.equalsWithTolerance(new TimeOfDay(1,2,4),1));
-        Assert.assertFalse(one.equalsWithTolerance(new TimeOfDay(1,2,5),1));
+        Assert.assertTrue(base.equalsWithTolerance(new TimeOfDay(1,2,4),1));
+        Assert.assertFalse(base.equalsWithTolerance(new TimeOfDay(1,2,5),1));
 
-        Assert.assertFalse(one.equalsWithTolerance(new TimeOfDay(1,3,4),1));
-        Assert.assertFalse(one.equalsWithTolerance(new TimeOfDay(1,3,4),60));
-        Assert.assertFalse(one.equalsWithTolerance(new TimeOfDay(2,2,5),60*60));
+        Assert.assertTrue(base.equalsWithTolerance(new TimeOfDay(1,3,4),61));
+        Assert.assertTrue(base.equalsWithTolerance(new TimeOfDay(2,2,5),60*60+2));
+
+        Assert.assertFalse(base.equalsWithTolerance(new TimeOfDay(1,3,4),1));
+        Assert.assertFalse(base.equalsWithTolerance(new TimeOfDay(1,3,4),60));
+        Assert.assertFalse(base.equalsWithTolerance(new TimeOfDay(2,2,5),60*60));
     }
 }
