@@ -57,7 +57,7 @@ public class CronUtil {
         CronField fieldYear = null;
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
-            Integer year = DateUtil.year(date);
+            Integer year = DateUtil.year(calendar);
             fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
             List<Integer> listYear = fieldYear.points();
             Integer calYear = CompareUtil.findNext(year, listYear);
@@ -85,10 +85,9 @@ public class CronUtil {
         TimeOfDay timeOfDayMin = doTimeOfDay(calendar, fieldSecond, fieldMinute, fieldHour);
 
 
-        Date tmp      = calendar.getTime();
-        Integer day   = DateUtil.day(tmp);
-        Integer month = DateUtil.month(tmp);
-        Integer week  = DateUtil.week(tmp);
+        Integer day   = DateUtil.day(calendar);
+        Integer month = DateUtil.month(calendar);
+        Integer week  = DateUtil.week(calendar);
 
         ////////////////////////////////循环处理日直到满足日/月/周///////////////////////////////
         ///天、月、周必须都满足,否则加一天
@@ -99,10 +98,9 @@ public class CronUtil {
                 || !satisfy(week , fieldWeek) ) {
 
             calendar.add(Calendar.DAY_OF_MONTH, 1);
-            Date t = calendar.getTime();
-            day = DateUtil.day(t);
-            month = DateUtil.month(t);
-            week = DateUtil.week(t);
+            day = DateUtil.day(calendar);
+            month = DateUtil.month(calendar);
+            week = DateUtil.week(calendar);
             //加了一天的情况下,时分秒就可以用最小的了,只需要设置一次
             if (!setting) {
                 setTimeOfDay(calendar, timeOfDayMin);
@@ -129,10 +127,9 @@ public class CronUtil {
      */
     private static TimeOfDay doTimeOfDay(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour) {
         //先确定时分秒
-        Date newDate       = calendar.getTime();
-        Integer hourNow    = DateUtil.hour(newDate);
-        Integer minuteNow  = DateUtil.minute(newDate);
-        Integer secondNow  = DateUtil.second(newDate);
+        Integer hourNow    = DateUtil.hour(calendar);
+        Integer minuteNow  = DateUtil.minute(calendar);
+        Integer secondNow  = DateUtil.second(calendar);
 
 
         List<Integer> listHour   = fieldHour.points();
@@ -210,7 +207,7 @@ public class CronUtil {
             for (Integer d : days) {
                 calendar.set(Calendar.DAY_OF_MONTH , d);
                 calendar.set(Calendar.MONTH , m - 1);
-                if(CompareUtil.inList(DateUtil.week(calendar.getTime()) , weeks)){
+                if(CompareUtil.inList(DateUtil.week(calendar) , weeks)){
                     //找到满足的月日
                     return true;
                 }
@@ -245,10 +242,13 @@ public class CronUtil {
      */
     public static List<TimeOfDay> calculate(String cron, Date date) {
         List<CronField> cronFields = convertCronField(cron);
-        int year  = DateUtil.year(date);
-        int week  = DateUtil.week(date);
-        int month = DateUtil.month(date);
-        int day   = DateUtil.day(date);
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+
+        int year  = DateUtil.year(calendar);
+        int week  = DateUtil.week(calendar);
+        int month = DateUtil.month(calendar);
+        int day   = DateUtil.day(calendar);
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
             CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());

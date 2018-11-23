@@ -76,7 +76,10 @@ public class DateUtil {
     public static int day(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return cal.get(Calendar.DAY_OF_MONTH);
+        return day(cal);
+    }
+    public static int day(Calendar calendar){
+        return calendar.get(Calendar.DAY_OF_MONTH);
     }
     /**
      * 计算某一天是星期几
@@ -86,7 +89,10 @@ public class DateUtil {
     public static int week(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return cal.get(Calendar.DAY_OF_WEEK) - 1;
+        return week(cal);
+    }
+    public static int week(Calendar calendar){
+        return calendar.get(Calendar.DAY_OF_WEEK) - 1;
     }
     /**
      * 计算某一天的月份
@@ -96,7 +102,10 @@ public class DateUtil {
     public static int month(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return cal.get(Calendar.MONTH) + 1;
+        return month(cal);
+    }
+    public static int month(Calendar calendar){
+        return calendar.get(Calendar.MONTH) + 1;
     }
     /**
      * 计算某一天的年
@@ -106,7 +115,10 @@ public class DateUtil {
     public static int year(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return cal.get(Calendar.YEAR);
+        return year(cal);
+    }
+    public static int year(Calendar calendar){
+        return calendar.get(Calendar.YEAR);
     }
     /**
      * 计算某一天的时
@@ -116,7 +128,10 @@ public class DateUtil {
     public static int hour(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return cal.get(Calendar.HOUR_OF_DAY);
+        return hour(cal);
+    }
+    public static int hour(Calendar calendar){
+        return calendar.get(Calendar.HOUR_OF_DAY);
     }
     /**
      * 计算某一天的分
@@ -126,7 +141,10 @@ public class DateUtil {
     public static int minute(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return cal.get(Calendar.MINUTE);
+        return minute(cal);
+    }
+    public static int minute(Calendar calendar){
+        return calendar.get(Calendar.MINUTE);
     }
     /**
      * 计算某一天的秒
@@ -136,7 +154,10 @@ public class DateUtil {
     public static int second(Date date){
         Calendar cal = Calendar.getInstance();
         cal.setTime(date);
-        return cal.get(Calendar.SECOND);
+        return second(cal);
+    }
+    public static int second(Calendar calendar){
+        return calendar.get(Calendar.SECOND);
     }
 
     /**
