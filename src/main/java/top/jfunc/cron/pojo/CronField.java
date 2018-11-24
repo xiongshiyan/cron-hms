@@ -29,16 +29,8 @@ public class CronField {
         return cronPosition;
     }
 
-    public void setCronPosition(CronPosition cronPosition) {
-        this.cronPosition = cronPosition;
-    }
-
     public String getExpress() {
         return express;
-    }
-
-    public void setExpress(String express) {
-        this.express = express;
     }
 
     /**
@@ -59,8 +51,6 @@ public class CronField {
 
         listCache = new ArrayList<>(5);
 
-        String express = this.getExpress();
-        CronPosition cronPosition = this.getCronPosition();
         Integer min = cronPosition.getMin();
         Integer max = cronPosition.getMax();
 
@@ -75,7 +65,7 @@ public class CronField {
         if (express.contains(COMMA)) {
             String[] split = express.split(COMMA);
             for (String part : split) {
-                listCache.addAll( new CronField(this.getCronPosition(), part).points());
+                listCache.addAll( new CronField(cronPosition, part).points());
             }
             if (listCache.size() > 1) {
                 //去重
