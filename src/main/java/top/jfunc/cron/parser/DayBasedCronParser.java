@@ -47,6 +47,7 @@ public class DayBasedCronParser implements CronParser{
         fieldDay    = cronFields.get(CronPosition.DAY.getPosition());
         fieldMonth  = cronFields.get(CronPosition.MONTH.getPosition());
         fieldWeek   = cronFields.get(CronPosition.WEEK.getPosition());
+        //解析的过程提前,后面就可以直接用缓存
         fieldSecond.points();
         fieldMinute.points();
         fieldHour.points();
