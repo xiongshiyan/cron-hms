@@ -8,6 +8,13 @@ import top.jfunc.cron.pojo.TimeOfDay;
 import java.util.*;
 
 /**
+ * 秒 分 时 日 月 周 (年)
+ * "0 15 10 ? * *"  每天上午10:15触发
+ * "0 0/5 14 * * ?"  在每天下午2点到下午2:55期间的每5分钟触发
+ * "0 0-5 14 * * ?"  每天下午2点到下午2:05期间的每1分钟触发
+ * "0 10,44 14 ? 3 WED"  三月的星期三的下午2:10和2:44触发
+ * "0 15 10 ? * MON-FRI"  周一至周五的上午10:15触发
+ * -------------------------------------------------------------------
  * 一、根据cron表达式，计算某天的那些时刻执行。
  * 思路：1、切割cron表达式
  *      2、转换每个域
@@ -32,7 +39,7 @@ public class CronUtil {
 
 
     /**
-     * 给定cron表达式和日期，计算满足cron的下一个执行时间点
+     * 5.给定cron表达式和日期，计算满足cron的下一个执行时间点
      *
      * @param cron cron表达式
      * @param date 日期时间
@@ -119,7 +126,6 @@ public class CronUtil {
         if (dayAndMonthNow.compareTo(dayAndMonthMin) < 0) {
             setDayAndMonth(calendar, dayAndMonthMin);
             setTimeOfDay(calendar , timeOfDayMin);
-            //大于最大的
         }else {
             //最小的即是要找的day，因为前面一个方法已经处理好时分秒了
             setDayAndMonth(calendar , dayAndMonthMin);
@@ -189,13 +195,11 @@ public class CronUtil {
                 }
             }
         }
-        //排序,已经排好序了时》分》秒
-        /// Collections.sort(points);
 
         TimeOfDay timeOfDayNow   = new TimeOfDay(hourNow, minuteNow, secondNow);
-        //小于最小的
         TimeOfDay timeOfDayMin   = points.get(0);
         TimeOfDay timeOfDayMax   = points.get(points.size() - 1);
+        //小于最小的
         if (timeOfDayNow.compareTo(timeOfDayMin) < 0) {
             setTimeOfDay(calendar, timeOfDayMin);
             //大于最大的
@@ -221,13 +225,6 @@ public class CronUtil {
 
     /**
      * 4.计算cron表达式在某一天的那些时间执行,精确到秒
-     * 秒 分 时 日 月 周 (年)
-     * "0 15 10 ? * *"  每天上午10:15触发
-     * "0 0/5 14 * * ?"  在每天下午2点到下午2:55期间的每5分钟触发
-     * "0 0-5 14 * * ?"  每天下午2点到下午2:05期间的每1分钟触发
-     * "0 10,44 14 ? 3 WED"  三月的星期三的下午2:10和2:44触发
-     * "0 15 10 ? * MON-FRI"  周一至周五的上午10:15触发
-     * ---------------------
      *
      * @param cron cron表达式
      * @param date 时间,某天
