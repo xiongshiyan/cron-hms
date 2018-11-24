@@ -2,7 +2,7 @@ package top.jfunc.cron.util;
 
 import top.jfunc.cron.pojo.CronField;
 import top.jfunc.cron.pojo.CronPosition;
-import top.jfunc.cron.pojo.DayAndMonth;
+import top.jfunc.cron.pojo.DayOfYear;
 import top.jfunc.cron.pojo.TimeOfDay;
 
 import java.util.*;
@@ -81,13 +81,13 @@ public class CronUtil {
         TimeOfDay timeOfDayMin = doTimeOfDay(calendar, fieldSecond, fieldMinute, fieldHour);
 
         //////////////////////////////////日月周///////////////////////////////
-        return doDayAndMonth(0 , calendar, fieldDay, fieldMonth, fieldWeek , fieldYear , timeOfDayMin);
+        return doDayOfYear(0 , calendar, fieldDay, fieldMonth, fieldWeek , fieldYear , timeOfDayMin);
     }
 
     /**
      * 处理日月周
      */
-    private static Date doDayAndMonth(int addYear , Calendar calendar, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear , TimeOfDay timeOfDayMin) {
+    private static Date doDayOfYear(int addYear , Calendar calendar, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear , TimeOfDay timeOfDayMin) {
         if(addYear >= MAX_ADD_YEAR){
             throw new IllegalArgumentException("Invalid cron expression【日月周年】 which led to runaway search for next trigger");
         }
@@ -98,7 +98,7 @@ public class CronUtil {
             //这一年不满足加一年,时分秒日月都重置为最小的
             if(!satisfy(year , fieldYear)){
                 addOneYear(calendar, timeOfDayMin);
-                return doDayAndMonth(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
+                return doDayOfYear(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
             }
 
         }
@@ -112,23 +112,23 @@ public class CronUtil {
         List<Integer> listMonth = fieldMonth.points();
 
 
-        DayAndMonth dayAndMonthNow = new DayAndMonth(dayNow , monthNow);
+        DayOfYear dayOfYearNow = new DayOfYear(dayNow , monthNow , year);
         //找到最小的一个满足日月星期的
-        DayAndMonth dayAndMonthMin = findMinDayAndMonth(dayAndMonthNow, listDay, listMonth, fieldWeek, year);
+        DayOfYear dayOfYearMin = findMinDayOfYear(dayOfYearNow, listDay, listMonth, fieldWeek);
 
         //这一年不满足加一年,时分秒日月都重置为最小的
-        if(null == dayAndMonthMin){
+        if(null == dayOfYearMin){
             addOneYear(calendar , timeOfDayMin);
-            return doDayAndMonth(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
+            return doDayOfYear(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
         }
 
         //小于最小的
-        if (dayAndMonthNow.compareTo(dayAndMonthMin) < 0) {
-            setDayAndMonth(calendar, dayAndMonthMin);
+        if (dayOfYearNow.compareTo(dayOfYearMin) < 0) {
+            setDayOfYear(calendar, dayOfYearMin);
             setTimeOfDay(calendar , timeOfDayMin);
         }else {
             //最小的即是要找的day，因为前面一个方法已经处理好时分秒了
-            setDayAndMonth(calendar , dayAndMonthMin);
+            setDayOfYear(calendar , dayOfYearMin);
         }
         return calendar.getTime();
     }
@@ -136,15 +136,15 @@ public class CronUtil {
     /**
      * 找到最小的满足日月周的
      */
-    private static DayAndMonth findMinDayAndMonth(DayAndMonth dayAndMonthNow, List<Integer> listDay, List<Integer> listMonth, CronField fieldWeek, int year) {
+    private static DayOfYear findMinDayOfYear(DayOfYear dayOfYearNow, List<Integer> listDay, List<Integer> listMonth, CronField fieldWeek) {
         for (Integer month : listMonth) {
             for (Integer day : listDay) {
-                DayAndMonth dayAndMonth = new DayAndMonth(day, month);
+                DayOfYear dayOfYear = new DayOfYear(day, month , dayOfYearNow.getYear());
                 //大于等于现在的并且满足星期的
-                if(dayAndMonth.compareTo(dayAndMonthNow) >= 0
-                        && satisfy(DateUtil.week(year , dayAndMonth) , fieldWeek)
+                if(dayOfYear.compareTo(dayOfYearNow) >= 0
+                        && satisfy(dayOfYear.week() , fieldWeek)
                         ){
-                    return dayAndMonth;
+                    return dayOfYear;
                 }
             }
         }
@@ -155,7 +155,7 @@ public class CronUtil {
      * 加一年 时分秒日月都重置为最小的
      */
     private static void addOneYear(Calendar calendar, TimeOfDay timeOfDayMin) {
-        setDayAndMonth(calendar , 1 ,1);
+        setDayOfYear(calendar , 1 ,1);
         setTimeOfDay(calendar, timeOfDayMin);
         calendar.add(Calendar.YEAR, 1);
     }
@@ -163,10 +163,10 @@ public class CronUtil {
     /**
      * 设置日月
      */
-    private static void setDayAndMonth(Calendar calendar, DayAndMonth dayAndMonth) {
-        setDayAndMonth(calendar , dayAndMonth.getMonth() , dayAndMonth.getDay());
+    private static void setDayOfYear(Calendar calendar, DayOfYear dayOfYear) {
+        setDayOfYear(calendar , dayOfYear.getMonth() , dayOfYear.getDay());
     }
-    private static void setDayAndMonth(Calendar calendar, int month , int day) {
+    private static void setDayOfYear(Calendar calendar, int month , int day) {
         calendar.set(Calendar.MONTH , month - 1);
         calendar.set(Calendar.DAY_OF_MONTH , day);
     }
