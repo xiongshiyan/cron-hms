@@ -196,7 +196,7 @@ public class CronUtil {
             }
         }
         //排序,已经排好序了时》分》秒
-        //Collections.sort(points);
+        /// Collections.sort(points);
 
         TimeOfDay timeOfDayNow   = new TimeOfDay(hourNow, minuteNow, secondNow);
         //小于最小的
@@ -209,14 +209,6 @@ public class CronUtil {
             setTimeOfDay(calendar, timeOfDayMin);
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         } else {
-            ///
-            /*for (TimeOfDay point : points) {
-                //从小到大的列表中找到第一个大于等于某个值的
-                if(timeOfDayNow.compareTo(point) <= 0){
-                    setTimeOfDay(calendar , point);
-                    break;
-                }
-            }*/
             TimeOfDay next = CompareUtil.findNext(timeOfDayNow, points);
             setTimeOfDay(calendar, next);
         }
