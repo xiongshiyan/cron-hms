@@ -181,13 +181,8 @@ public class CronUtil {
         Integer secondNow  = DateUtil.second(calendar);
 
 
-        List<Integer> listHour   = fieldHour.points();
-        List<Integer> listMinute = fieldMinute.points();
-        List<Integer> listSecond = fieldSecond.points();
-
-
         //找到所有时分秒的组合
-        List<TimeOfDay> points = availableTimeOfDays(listHour, listMinute, listSecond);
+        List<TimeOfDay> points = allTimeOfDays(fieldHour, fieldMinute, fieldSecond);
 
         TimeOfDay timeOfDayNow   = new TimeOfDay(hourNow, minuteNow, secondNow);
         TimeOfDay timeOfDayMin   = points.get(0);
@@ -251,16 +246,16 @@ public class CronUtil {
         }
 
         CronField fieldHour      = cronFields.get(CronPosition.HOUR.getPosition());
-        List<Integer> listHour   = fieldHour.points();
         CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.getPosition());
-        List<Integer> listMinute = fieldMinute.points();
         CronField fieldSecond    = cronFields.get(CronPosition.SECOND.getPosition());
-        List<Integer> listSecond = fieldSecond.points();
-
-        return availableTimeOfDays(listHour, listMinute, listSecond);
+        return allTimeOfDays(fieldHour, fieldMinute, fieldSecond);
     }
 
-    private static List<TimeOfDay> availableTimeOfDays(List<Integer> listHour, List<Integer> listMinute, List<Integer> listSecond) {
+    private static List<TimeOfDay> allTimeOfDays(CronField fieldHour, CronField fieldMinute, CronField fieldSecond) {
+        List<Integer> listHour   = fieldHour.points();
+        List<Integer> listMinute = fieldMinute.points();
+        List<Integer> listSecond = fieldSecond.points();
+
         List<TimeOfDay> points = new ArrayList<>(listHour.size() * listMinute.size() * listSecond.size());
         for (Integer hour : listHour) {
             for (Integer minute : listMinute) {
