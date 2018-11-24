@@ -17,7 +17,7 @@ public class CompareUtil {
      * @param sortedList 排好序的列表
      * @param <T> T
      */
-    static <T extends Comparable<T>> T findNext(T current , List<T> sortedList){
+    public static <T extends Comparable<T>> T findNext(T current , List<T> sortedList){
         for (T item : sortedList) {
             if(item.compareTo(current) >= 0){
                 return item;

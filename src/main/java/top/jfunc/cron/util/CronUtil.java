@@ -136,7 +136,7 @@ public class CronUtil {
     /**
      * 找到最小的满足日月周的
      */
-    private static DayOfYear findMinDayOfYear(DayOfYear dayOfYearNow, List<Integer> listDay, List<Integer> listMonth, CronField fieldWeek) {
+    public static DayOfYear findMinDayOfYear(DayOfYear dayOfYearNow, List<Integer> listDay, List<Integer> listMonth, CronField fieldWeek) {
         for (Integer month : listMonth) {
             for (Integer day : listDay) {
                 DayOfYear dayOfYear = new DayOfYear(day, month , dayOfYearNow.getYear());
@@ -154,7 +154,7 @@ public class CronUtil {
     /**
      * 加一年 时分秒日月都重置为最小的
      */
-    private static void addOneYear(Calendar calendar, TimeOfDay timeOfDayMin) {
+    public static void addOneYear(Calendar calendar, TimeOfDay timeOfDayMin) {
         setDayOfYear(calendar , 1 ,1);
         setTimeOfDay(calendar, timeOfDayMin);
         calendar.add(Calendar.YEAR, 1);
@@ -163,10 +163,10 @@ public class CronUtil {
     /**
      * 设置日月
      */
-    private static void setDayOfYear(Calendar calendar, DayOfYear dayOfYear) {
+    public static void setDayOfYear(Calendar calendar, DayOfYear dayOfYear) {
         setDayOfYear(calendar , dayOfYear.getMonth() , dayOfYear.getDay());
     }
-    private static void setDayOfYear(Calendar calendar, int month , int day) {
+    public static void setDayOfYear(Calendar calendar, int month , int day) {
         calendar.set(Calendar.MONTH , month - 1);
         calendar.set(Calendar.DAY_OF_MONTH , day);
     }
@@ -204,7 +204,7 @@ public class CronUtil {
     /**
      * 设置时分秒域
      */
-    private static void setTimeOfDay(Calendar calendar, TimeOfDay timeOfDay) {
+    public static void setTimeOfDay(Calendar calendar, TimeOfDay timeOfDay) {
         calendar.set(Calendar.HOUR_OF_DAY, timeOfDay.getHour());
         calendar.set(Calendar.MINUTE, timeOfDay.getMinute());
         calendar.set(Calendar.SECOND, timeOfDay.getSecond());
@@ -251,7 +251,7 @@ public class CronUtil {
         return allTimeOfDays(fieldHour, fieldMinute, fieldSecond);
     }
 
-    private static List<TimeOfDay> allTimeOfDays(CronField fieldHour, CronField fieldMinute, CronField fieldSecond) {
+    public static List<TimeOfDay> allTimeOfDays(CronField fieldHour, CronField fieldMinute, CronField fieldSecond) {
         List<Integer> listHour   = fieldHour.points();
         List<Integer> listMinute = fieldMinute.points();
         List<Integer> listSecond = fieldSecond.points();
@@ -273,7 +273,7 @@ public class CronUtil {
      * @param field 域
      * @return *或者值在集合中
      */
-    private static boolean satisfy(Integer fieldValue, CronField field) {
+    public static boolean satisfy(Integer fieldValue, CronField field) {
         //利用 || 的短路特性可以避免 points 计算 , 并且 points本身是有缓存的
         return field.containsAll() || CompareUtil.inList(fieldValue, field.points());
     }
