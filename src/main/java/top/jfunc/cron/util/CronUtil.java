@@ -187,14 +187,7 @@ public class CronUtil {
 
 
         //找到所有时分秒的组合
-        List<TimeOfDay> points = new ArrayList<>(listHour.size() * listMinute.size() * listSecond.size());
-        for (Integer hour : listHour) {
-            for (Integer minute : listMinute) {
-                for (Integer second : listSecond) {
-                    points.add(new TimeOfDay(hour, minute, second));
-                }
-            }
-        }
+        List<TimeOfDay> points = availableTimeOfDays(listHour, listMinute, listSecond);
 
         TimeOfDay timeOfDayNow   = new TimeOfDay(hourNow, minuteNow, secondNow);
         TimeOfDay timeOfDayMin   = points.get(0);
@@ -264,6 +257,10 @@ public class CronUtil {
         CronField fieldSecond    = cronFields.get(CronPosition.SECOND.getPosition());
         List<Integer> listSecond = fieldSecond.points();
 
+        return availableTimeOfDays(listHour, listMinute, listSecond);
+    }
+
+    private static List<TimeOfDay> availableTimeOfDays(List<Integer> listHour, List<Integer> listMinute, List<Integer> listSecond) {
         List<TimeOfDay> points = new ArrayList<>(listHour.size() * listMinute.size() * listSecond.size());
         for (Integer hour : listHour) {
             for (Integer minute : listMinute) {
