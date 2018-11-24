@@ -7,25 +7,25 @@ import java.util.Calendar;
  * @author xiongshiyan at 2018/11/18 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public final class DayOfYear implements Comparable<DayOfYear> {
-    private Integer day;
-    private Integer month;
-    private Integer year;
+    private int day;
+    private int month;
+    private int year;
 
-    public DayOfYear(Integer day, Integer month , Integer year) {
+    public DayOfYear(int day, int month , int year) {
         this.day = day;
         this.month = month;
         this.year = year;
     }
 
-    public Integer getDay() {
+    public int getDay() {
         return day;
     }
 
-    public Integer getMonth() {
+    public int getMonth() {
         return month;
     }
 
-    public Integer getYear() {
+    public int getYear() {
         return year;
     }
 
@@ -36,16 +36,16 @@ public final class DayOfYear implements Comparable<DayOfYear> {
 
         DayOfYear dayOfYear = (DayOfYear) o;
 
-        if (day != null ? !day.equals(dayOfYear.day) : dayOfYear.day != null) return false;
-        if (month != null ? !month.equals(dayOfYear.month) : dayOfYear.month != null) return false;
-        return year != null ? year.equals(dayOfYear.year) : dayOfYear.year == null;
+        if (day != dayOfYear.day) return false;
+        if (month != dayOfYear.month) return false;
+        return year == dayOfYear.year;
     }
 
     @Override
     public int hashCode() {
-        int result = day != null ? day.hashCode() : 0;
-        result = 31 * result + (month != null ? month.hashCode() : 0);
-        result = 31 * result + (year != null ? year.hashCode() : 0);
+        int result = day;
+        result = 31 * result + month;
+        result = 31 * result + year;
         return result;
     }
 

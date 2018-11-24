@@ -49,7 +49,7 @@ public class CompareUtil {
     /**
      * 比较大小,左边的必须比右边小
      */
-    public static void assertSize(Integer left, Integer right) {
+    public static void assertSize(int left, int right) {
         if (left > right) {
             throw new IllegalArgumentException("right should bigger than left , but find " + left + " > " + right);
         }
@@ -58,9 +58,9 @@ public class CompareUtil {
     /**
      * 某个域的范围
      */
-    public static void assertRange(CronPosition cronPosition, Integer value) {
-        Integer min = cronPosition.getMin();
-        Integer max = cronPosition.getMax();
+    public static void assertRange(CronPosition cronPosition, int value) {
+        int min = cronPosition.getMin();
+        int max = cronPosition.getMax();
         if (value < min || value > max) {
             throw new IllegalArgumentException(cronPosition.name() + " 域[" + min + " , " + max + "],  but find " + value);
         }

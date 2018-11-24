@@ -103,8 +103,8 @@ public class DayBasedCronParser implements CronParser{
 
         }
         //先确定日月
-        Integer dayNow    = DateUtil.day(calendar);
-        Integer monthNow  = DateUtil.month(calendar);
+        int dayNow    = DateUtil.day(calendar);
+        int monthNow  = DateUtil.month(calendar);
 
 
         //可用的日月
@@ -138,9 +138,9 @@ public class DayBasedCronParser implements CronParser{
      */
     private TimeOfDay doTimeOfDay(Calendar calendar) {
         //先确定时分秒
-        Integer hourNow    = DateUtil.hour(calendar);
-        Integer minuteNow  = DateUtil.minute(calendar);
-        Integer secondNow  = DateUtil.second(calendar);
+        int hourNow    = DateUtil.hour(calendar);
+        int minuteNow  = DateUtil.minute(calendar);
+        int secondNow  = DateUtil.second(calendar);
 
 
         //找到所有时分秒的组合
@@ -170,7 +170,7 @@ public class DayBasedCronParser implements CronParser{
      *      4、计算某一天的哪些时间点执行
      */
     @Override
-    public List<TimeOfDay> timeOfDays(Date date) {
+    public List<TimeOfDay> timesOfDay(Date date) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
 

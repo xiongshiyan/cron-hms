@@ -19,13 +19,13 @@ public enum  CronPosition {
     /**
      * 该域最小值
      */
-    private Integer min;
+    private int min;
     /**
      * 该域最大值
      */
-    private Integer max;
+    private int max;
 
-    CronPosition(int position , Integer min , Integer max){
+    CronPosition(int position , int min , int max){
         this.position = position;
         this.min = min;
         this.max = max;
@@ -35,11 +35,11 @@ public enum  CronPosition {
         return position;
     }
 
-    public Integer getMin() {
+    public int getMin() {
         return min;
     }
 
-    public Integer getMax() {
+    public int getMax() {
         return max;
     }
 

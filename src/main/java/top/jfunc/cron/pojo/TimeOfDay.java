@@ -9,25 +9,25 @@ import java.util.Calendar;
  * @author xiongshiyan at 2018/11/18 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public final class TimeOfDay implements Comparable<TimeOfDay> {
-    private Integer hour;
-    private Integer minute;
-    private Integer second;
+    private int hour;
+    private int minute;
+    private int second;
 
-    public TimeOfDay(Integer hour, Integer minute, Integer second) {
+    public TimeOfDay(int hour, int minute, int second) {
         this.hour = hour;
         this.minute = minute;
         this.second = second;
     }
 
-    public Integer getHour() {
+    public int getHour() {
         return hour;
     }
 
-    public Integer getMinute() {
+    public int getMinute() {
         return minute;
     }
 
-    public Integer getSecond() {
+    public int getSecond() {
         return second;
     }
 
@@ -45,18 +45,18 @@ public final class TimeOfDay implements Comparable<TimeOfDay> {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        TimeOfDay timeOfDay = (TimeOfDay) o;
+        TimeOfDay ofDay = (TimeOfDay) o;
 
-        if (hour != null ? !hour.equals(timeOfDay.hour) : timeOfDay.hour != null) return false;
-        if (minute != null ? !minute.equals(timeOfDay.minute) : timeOfDay.minute != null) return false;
-        return second != null ? second.equals(timeOfDay.second) : timeOfDay.second == null;
+        if (hour != ofDay.hour) return false;
+        if (minute != ofDay.minute) return false;
+        return second == ofDay.second;
     }
 
     @Override
     public int hashCode() {
-        int result = hour != null ? hour.hashCode() : 0;
-        result = 31 * result + (minute != null ? minute.hashCode() : 0);
-        result = 31 * result + (second != null ? second.hashCode() : 0);
+        int result = hour;
+        result = 31 * result + minute;
+        result = 31 * result + second;
         return result;
     }
 

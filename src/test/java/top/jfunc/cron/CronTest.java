@@ -81,7 +81,7 @@ public class CronTest {
                 new TimeOfDay(10 , 15 , 3),
                 new TimeOfDay(10 , 15 , 4),
                 new TimeOfDay(10 , 15 , 5)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1/10 10 ? * *";
         calculate = CronUtil.calculate(cron, date);
@@ -92,7 +92,7 @@ public class CronTest {
                 new TimeOfDay(10 , 31 , 0),
                 new TimeOfDay(10 , 41 , 0),
                 new TimeOfDay(10 , 51 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1,4,6,8,10,50 10 ? * *";
         calculate = CronUtil.calculate(cron, date);
@@ -103,7 +103,7 @@ public class CronTest {
                 new TimeOfDay(10 , 8 , 0),
                 new TimeOfDay(10 , 10 , 0),
                 new TimeOfDay(10 , 50 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-30/5 10 ? * *";
         calculate = CronUtil.calculate(cron, date);
@@ -114,7 +114,7 @@ public class CronTest {
                 new TimeOfDay(10 , 16 , 0),
                 new TimeOfDay(10 , 21 , 0),
                 new TimeOfDay(10 , 26 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-30/5 10 ? * SUN";
         calculate = CronUtil.calculate(cron, date);
@@ -125,7 +125,7 @@ public class CronTest {
                 new TimeOfDay(10 , 16 , 0),
                 new TimeOfDay(10 , 21 , 0),
                 new TimeOfDay(10 , 26 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-30/5 10 ? 11 *";
         calculate = CronUtil.calculate(cron, date);
@@ -136,7 +136,7 @@ public class CronTest {
                 new TimeOfDay(10 , 16 , 0),
                 new TimeOfDay(10 , 21 , 0),
                 new TimeOfDay(10 , 26 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-4,43 10 ? 11 *";
         calculate = CronUtil.calculate(cron, date);
@@ -146,7 +146,7 @@ public class CronTest {
                 new TimeOfDay(10 , 3 , 0),
                 new TimeOfDay(10 , 4 , 0),
                 new TimeOfDay(10 , 43 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-10/2,43 10 ? 11 *";
         calculate = CronUtil.calculate(cron, date);
@@ -157,7 +157,7 @@ public class CronTest {
                 new TimeOfDay(10 , 7 , 0),
                 new TimeOfDay(10 , 9 , 0),
                 new TimeOfDay(10 , 43 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 7,1-5/2,5,6 10 ? 11 *";
         calculate = CronUtil.calculate(cron, date);
@@ -167,7 +167,7 @@ public class CronTest {
                 new TimeOfDay(10 , 5 , 0),
                 new TimeOfDay(10 , 6 , 0),
                 new TimeOfDay(10 , 7 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-6/2,12-27/5 10 ? 11 *";
         calculate = CronUtil.calculate(cron, date);
@@ -179,13 +179,13 @@ public class CronTest {
                 new TimeOfDay(10 , 17 , 0),
                 new TimeOfDay(10 , 22 , 0),
                 new TimeOfDay(10 , 27 , 0)) , calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         ///星期一到星期六执行,星期天不执行就返回空集合
         cron = "0 1-30/5 10 ? * MON-SAT";
         calculate = CronUtil.calculate(cron, date);
         Assert.assertEquals(Collections.emptyList(), calculate);
-        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timeOfDays(date));
+        Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
     }
 
 

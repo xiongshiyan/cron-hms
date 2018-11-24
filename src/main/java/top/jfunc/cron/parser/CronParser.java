@@ -22,5 +22,5 @@ public interface CronParser {
      * @param date 给定日期
      * @return 哪些时刻[时分秒]
      */
-    List<TimeOfDay> timeOfDays(Date date);
+    List<TimeOfDay> timesOfDay(Date date);
 }

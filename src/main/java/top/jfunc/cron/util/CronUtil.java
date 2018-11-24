@@ -176,9 +176,9 @@ public class CronUtil {
      */
     private static TimeOfDay doTimeOfDay(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour) {
         //先确定时分秒
-        Integer hourNow    = DateUtil.hour(calendar);
-        Integer minuteNow  = DateUtil.minute(calendar);
-        Integer secondNow  = DateUtil.second(calendar);
+        int hourNow    = DateUtil.hour(calendar);
+        int minuteNow  = DateUtil.minute(calendar);
+        int secondNow  = DateUtil.second(calendar);
 
 
         //找到所有时分秒的组合
@@ -248,6 +248,7 @@ public class CronUtil {
         CronField fieldHour      = cronFields.get(CronPosition.HOUR.getPosition());
         CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.getPosition());
         CronField fieldSecond    = cronFields.get(CronPosition.SECOND.getPosition());
+
         return allTimeOfDays(fieldHour, fieldMinute, fieldSecond);
     }
 
@@ -273,7 +274,7 @@ public class CronUtil {
      * @param field 域
      * @return *或者值在集合中
      */
-    public static boolean satisfy(Integer fieldValue, CronField field) {
+    public static boolean satisfy(int fieldValue, CronField field) {
         //利用 || 的短路特性可以避免 points 计算 , 并且 points本身是有缓存的
         return field.containsAll() || CompareUtil.inList(fieldValue, field.points());
     }
