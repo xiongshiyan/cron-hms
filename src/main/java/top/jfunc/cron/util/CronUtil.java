@@ -2,6 +2,7 @@ package top.jfunc.cron.util;
 
 import top.jfunc.cron.pojo.CronField;
 import top.jfunc.cron.pojo.CronPosition;
+import top.jfunc.cron.pojo.DayAndMonth;
 import top.jfunc.cron.pojo.TimeOfDay;
 
 import java.util.*;
@@ -66,60 +67,108 @@ public class CronUtil {
             }
         }
 
-        return doNext(0, calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
+        return doNext(calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
     }
 
-    private static Date doNext(int addYear , Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear) {
-        if(addYear >= MAX_ADD_YEAR){
-            throw new IllegalArgumentException("Invalid cron expression \"" +
-                    (fieldSecond.getExpress() + " "
-                    + fieldMinute.getExpress() + " "
-                    + fieldHour.getExpress() + " "
-                    + fieldDay.getExpress() + " "
-                    + fieldMonth.getExpress() + " "
-                    + fieldWeek.getExpress())
-                    + "\" which led to runaway search for next trigger");
-        }
-
+    private static Date doNext(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear) {
         //////////////////////////////////时分秒///////////////////////////////
         TimeOfDay timeOfDayMin = doTimeOfDay(calendar, fieldSecond, fieldMinute, fieldHour);
 
+        //////////////////////////////////日月周///////////////////////////////
+        return doDayAndMonth(0 , calendar, fieldDay, fieldMonth, fieldWeek , fieldYear , timeOfDayMin);
+    }
 
-        Integer day   = DateUtil.day(calendar);
-        Integer month = DateUtil.month(calendar);
-        Integer week  = DateUtil.week(calendar);
+    /**
+     * 处理日月，并返回最小日月
+     */
+    private static Date doDayAndMonth(int addYear , Calendar calendar, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear , TimeOfDay timeOfDayMin) {
+        if(addYear >= MAX_ADD_YEAR){
+            throw new IllegalArgumentException("Invalid cron expression【日月周年】 which led to runaway search for next trigger");
+        }
 
-        ////////////////////////////////循环处理日直到满足日/月/周///////////////////////////////
-        ///天、月、周必须都满足,否则加一天
-        int count = 0;
-        boolean setting = false;
-        while (!satisfy(day, fieldDay)
-                || !satisfy(month , fieldMonth)
-                || !satisfy(week , fieldWeek) ) {
-
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-            day = DateUtil.day(calendar);
-            month = DateUtil.month(calendar);
-            week = DateUtil.week(calendar);
-            //加了一天的情况下,时分秒就可以用最小的了,只需要设置一次
-            if (!setting) {
-                setTimeOfDay(calendar, timeOfDayMin);
-                setting = true;
+        int year = DateUtil.year(calendar);
+        //有年域的情况
+        if(null != fieldYear){
+            //这一年不满足加一年,时分秒日月都重置为最小的
+            if(!satisfy(year , fieldYear)){
+                addOneYear(calendar, timeOfDayMin);
+                return doDayAndMonth(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
             }
-            count++;
-            //极端情况下：这尼玛太坑了,一般遇不到:加了一年还未找到
-            if (count >= MAX_ADD_COUNT) {
-                //不抛异常再一天天往下找
-                return doNext(++addYear , calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
-                //throw new IllegalArgumentException("一年之中都未找到符合要求的时间,请检查您的cron表达式");
+
+        }
+        //先确定日月
+        Integer dayNow    = DateUtil.day(calendar);
+        Integer monthNow  = DateUtil.month(calendar);
+
+
+        //可用的日月
+        List<Integer> listDay   = fieldDay.points();
+        List<Integer> listMonth = fieldMonth.points();
+
+
+        DayAndMonth dayAndMonthNow = new DayAndMonth(dayNow , monthNow);
+        //找到所有时分秒的组合
+        List<DayAndMonth> points = new ArrayList<>(listDay.size() * listMonth.size());
+        for (Integer month : listMonth) {
+            for (Integer day : listDay) {
+                DayAndMonth dayAndMonth = new DayAndMonth(day, month);
+                //大于等于现在的并且满足星期的
+                if(dayAndMonth.compareTo(dayAndMonthNow) >= 0
+                        && satisfy(DateUtil.week(year , dayAndMonth) , fieldWeek)
+                        ){
+                    points.add(dayAndMonth);
+                }
             }
         }
 
-        ///此时除开年域其他域都满足了,这个时候的年不一定满足,找到一个满足的年，这时又需要去计算日月周
-        //处理年域
-        doYear(calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
+        //这一年不满足加一年,时分秒日月都重置为最小的
+        if(0 == points.size()){
+            addOneYear(calendar , timeOfDayMin);
+            return doDayAndMonth(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
+        }
+        //排序不需要了月》日
+        /// Collections.sort(points);
 
+        DayAndMonth dayAndMonthMin   = points.get(0);
+        DayAndMonth dayAndMonthMax   = points.get(points.size() - 1);
+        //小于最小的
+        if (dayAndMonthNow.compareTo(dayAndMonthMin) < 0) {
+            setDayAndMonth(calendar, dayAndMonthMin);
+            setTimeOfDay(calendar , timeOfDayMin);
+            //大于最大的
+        } else if (dayAndMonthNow.compareTo(dayAndMonthMax) > 0) {
+            addOneYear(calendar, timeOfDayMin);
+            return doDayAndMonth(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear ,timeOfDayMin);
+        } else {
+            //在里面找
+            DayAndMonth next = CompareUtil.findNext(dayAndMonthNow, points);
+            setDayAndMonth(calendar , next);
+            //往后的天里面肯定时分秒是最小的
+            if(!next.equals(dayAndMonthNow)){
+                setTimeOfDay(calendar , timeOfDayMin);
+            }
+        }
         return calendar.getTime();
+    }
+
+    /**
+     * 加一年 时分秒日月都重置为最小的
+     */
+    private static void addOneYear(Calendar calendar, TimeOfDay timeOfDayMin) {
+        setDayAndMonth(calendar , 1 ,1);
+        setTimeOfDay(calendar, timeOfDayMin);
+        calendar.add(Calendar.YEAR, 1);
+    }
+
+    /**
+     * 设置日月
+     */
+    private static void setDayAndMonth(Calendar calendar, DayAndMonth dayAndMonth) {
+        setDayAndMonth(calendar , dayAndMonth.getMonth() , dayAndMonth.getDay());
+    }
+    private static void setDayAndMonth(Calendar calendar, int month , int day) {
+        calendar.set(Calendar.MONTH , month - 1);
+        calendar.set(Calendar.DAY_OF_MONTH , day);
     }
 
     /**
@@ -164,48 +213,6 @@ public class CronUtil {
             setTimeOfDay(calendar, next);
         }
         return timeOfDayMin;
-    }
-
-    /**
-     * 处理年域
-     */
-    private static void doYear(Calendar calendar, CronField fieldDay, CronField fieldMonth, CronField fieldWeek, CronField fieldYear, TimeOfDay timeOfDayMin) {
-        //说明没有年域
-        if(null == fieldYear){
-            return;
-        }
-        boolean success = false;
-        for (Integer y : fieldYear.points()) {
-            calendar.set(Calendar.YEAR, y);
-            success = findAndSettingDayAndMonth(calendar, fieldDay.points(), fieldMonth.points(), fieldWeek.points());
-            //年月日都满足
-            if(success){
-                //时分秒设置最小
-                setTimeOfDay(calendar, timeOfDayMin);
-                break;
-            }
-        }
-        if(!success){
-            throw new IllegalArgumentException("无法找到满足的下一个执行时间,请检查cron表达式");
-        }
-    }
-
-    /**
-     * 找到并设置日月，并返回是否找到
-     */
-    private static boolean findAndSettingDayAndMonth(Calendar calendar, List<Integer> days, List<Integer> months, List<Integer> weeks) {
-        //从小到大循环月-日
-        for (Integer m : months) {
-            for (Integer d : days) {
-                calendar.set(Calendar.DAY_OF_MONTH , d);
-                calendar.set(Calendar.MONTH , m - 1);
-                if(CompareUtil.inList(DateUtil.week(calendar) , weeks)){
-                    //找到满足的月日
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 
     /**

@@ -268,7 +268,7 @@ public class CronNextTest {
     public void benchmark(){
         Date date = DateUtil.toDate("1999-10-18 12:00:00");
         String cron = "10-20/4 10,44,30/2 10 ? 3 WED";
-        int max = 10;
+        int max = 10000;
         long beginSpring = System.currentTimeMillis();
         for (int i = 0; i < max; i++) {
             new CronSequenceGenerator(cron).next(date);

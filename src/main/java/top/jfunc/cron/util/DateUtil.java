@@ -1,5 +1,6 @@
 package top.jfunc.cron.util;
 
+import top.jfunc.cron.pojo.DayAndMonth;
 import top.jfunc.cron.pojo.TimeOfDay;
 
 import java.text.ParseException;
@@ -158,6 +159,13 @@ public class DateUtil {
     }
     public static int second(Calendar calendar){
         return calendar.get(Calendar.SECOND);
+    }
+    public static int week(int year , DayAndMonth dayAndMonth){
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.YEAR , year);
+        calendar.set(Calendar.DAY_OF_MONTH , dayAndMonth.getDay());
+        calendar.set(Calendar.MONTH , dayAndMonth.getMonth() - 1);
+        return week(calendar);
     }
 
     /**
