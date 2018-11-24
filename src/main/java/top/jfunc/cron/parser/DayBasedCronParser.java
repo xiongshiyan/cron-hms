@@ -165,6 +165,12 @@ public class DayBasedCronParser implements CronParser{
         return timeOfDayMin;
     }
 
+    /**
+     * 思路：1、切割cron表达式
+     *      2、转换每个域
+     *      3、计算执行时间点（关键算法，解析cron表达式）
+     *      4、计算某一天的哪些时间点执行
+     */
     @Override
     public List<TimeOfDay> timeOfDays(Date date) {
         Calendar calendar = Calendar.getInstance();
