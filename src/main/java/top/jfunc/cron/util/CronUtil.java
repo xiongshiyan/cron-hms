@@ -24,11 +24,10 @@ import java.util.*;
  * @author xiongshiyan at 2018/11/17 , contact me with email yanshixiong@126.com or phone 15208384257
  */
 public class CronUtil {
-    private static final int CRON_LEN = 6;
+    private static final int CRON_LEN      = 6;
     private static final int CRON_LEN_YEAR = 7;
-    private static final String CRON_CUT = "\\s+";
+    private static final String CRON_CUT   = "\\s+";
 
-    private static final int MAX_ADD_COUNT = 365;
     private static final int MAX_ADD_YEAR  = 10;
 
 
@@ -79,7 +78,7 @@ public class CronUtil {
     }
 
     /**
-     * 处理日月，并返回最小日月
+     * 处理日月周
      */
     private static Date doDayAndMonth(int addYear , Calendar calendar, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear , TimeOfDay timeOfDayMin) {
         if(addYear >= MAX_ADD_YEAR){
@@ -107,46 +106,38 @@ public class CronUtil {
 
 
         DayAndMonth dayAndMonthNow = new DayAndMonth(dayNow , monthNow);
-        //找到所有时分秒的组合
-        List<DayAndMonth> points = new ArrayList<>(listDay.size() * listMonth.size());
+        //找到最小的一个满足日月星期的
+        DayAndMonth dayAndMonthMin   = null;
         for (Integer month : listMonth) {
+            if(null != dayAndMonthMin){
+                break;
+            }
             for (Integer day : listDay) {
                 DayAndMonth dayAndMonth = new DayAndMonth(day, month);
                 //大于等于现在的并且满足星期的
                 if(dayAndMonth.compareTo(dayAndMonthNow) >= 0
                         && satisfy(DateUtil.week(year , dayAndMonth) , fieldWeek)
                         ){
-                    points.add(dayAndMonth);
+                    dayAndMonthMin = dayAndMonth;
+                    break;
                 }
             }
         }
 
         //这一年不满足加一年,时分秒日月都重置为最小的
-        if(0 == points.size()){
+        if(null == dayAndMonthMin){
             addOneYear(calendar , timeOfDayMin);
             return doDayAndMonth(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
         }
-        //排序不需要了月》日
-        /// Collections.sort(points);
 
-        DayAndMonth dayAndMonthMin   = points.get(0);
-        DayAndMonth dayAndMonthMax   = points.get(points.size() - 1);
         //小于最小的
         if (dayAndMonthNow.compareTo(dayAndMonthMin) < 0) {
             setDayAndMonth(calendar, dayAndMonthMin);
             setTimeOfDay(calendar , timeOfDayMin);
             //大于最大的
-        } else if (dayAndMonthNow.compareTo(dayAndMonthMax) > 0) {
-            addOneYear(calendar, timeOfDayMin);
-            return doDayAndMonth(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear ,timeOfDayMin);
-        } else {
-            //在里面找
-            DayAndMonth next = CompareUtil.findNext(dayAndMonthNow, points);
-            setDayAndMonth(calendar , next);
-            //往后的天里面肯定时分秒是最小的
-            if(!next.equals(dayAndMonthNow)){
-                setTimeOfDay(calendar , timeOfDayMin);
-            }
+        }else {
+            //最小的即是要找的day，因为前面一个方法已经处理好时分秒了
+            setDayAndMonth(calendar , dayAndMonthMin);
         }
         return calendar.getTime();
     }

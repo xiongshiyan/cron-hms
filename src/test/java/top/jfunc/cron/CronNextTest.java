@@ -258,16 +258,53 @@ public class CronNextTest {
         Assert.assertEquals("2025-03-03 23:15:02" , DateUtil.toStr(next1));
     }
     /**
-     * 一个比较复杂的表达式来测试 benchmark
+     * 一些比较复杂的表达式来测试 benchmark
      * 1.由于Spring使用了BitSet数据结构，操作都是位运算，所以速度较快
      * 2.HMS算法先计算所有的可能，再去找一个，比较耗时，并且基于一个假设，时分秒的组合不多，在遇到极端情况表现就非常糟糕
      * 3.所以HMS算法仅仅作为学习之用
+     * 4.经过无数次优化，现在已经比较接近Spring的算法速度了
      */
     @Ignore
     @Test
     public void benchmark(){
         Date date = DateUtil.toDate("1999-10-18 12:00:00");
         String cron = "10-20/4 10,44,30/2 10 ? 3 WED";
+        int max = 10000;
+        long beginSpring = System.currentTimeMillis();
+        for (int i = 0; i < max; i++) {
+            new CronSequenceGenerator(cron).next(date);
+        }
+        System.out.println("Spring 执行 " + max + " 次耗时: " + (System.currentTimeMillis() - beginSpring));
+
+        long beginHms = System.currentTimeMillis();
+        for (int i = 0; i < max; i++) {
+            CronUtil.next(cron, date);
+        }
+        System.out.println("HMS 执行 " + max + " 次耗时: " + (System.currentTimeMillis() - beginHms));
+    }
+    @Ignore
+    @Test
+    public void benchmark2(){
+        Date date = DateUtil.toDate("2016-01-29 04:01:12");
+        String cron = "0 0/5 14,18 * * ?";
+        int max = 10000;
+        long beginSpring = System.currentTimeMillis();
+        for (int i = 0; i < max; i++) {
+            new CronSequenceGenerator(cron).next(date);
+        }
+        System.out.println("Spring 执行 " + max + " 次耗时: " + (System.currentTimeMillis() - beginSpring));
+
+        long beginHms = System.currentTimeMillis();
+        for (int i = 0; i < max; i++) {
+            CronUtil.next(cron, date);
+        }
+        System.out.println("HMS 执行 " + max + " 次耗时: " + (System.currentTimeMillis() - beginHms));
+    }
+    @Ignore
+    @Test
+    public void benchmark3(){
+        Date date = DateUtil.toDate("2003-02-09 06:17:19");
+        String cron = "0 10-20/3,57-59 * * * WED-FRI";
         int max = 10000;
         long beginSpring = System.currentTimeMillis();
         for (int i = 0; i < max; i++) {
