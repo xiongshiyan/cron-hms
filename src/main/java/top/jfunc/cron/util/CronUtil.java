@@ -107,22 +107,7 @@ public class CronUtil {
 
         DayAndMonth dayAndMonthNow = new DayAndMonth(dayNow , monthNow);
         //找到最小的一个满足日月星期的
-        DayAndMonth dayAndMonthMin   = null;
-        for (Integer month : listMonth) {
-            if(null != dayAndMonthMin){
-                break;
-            }
-            for (Integer day : listDay) {
-                DayAndMonth dayAndMonth = new DayAndMonth(day, month);
-                //大于等于现在的并且满足星期的
-                if(dayAndMonth.compareTo(dayAndMonthNow) >= 0
-                        && satisfy(DateUtil.week(year , dayAndMonth) , fieldWeek)
-                        ){
-                    dayAndMonthMin = dayAndMonth;
-                    break;
-                }
-            }
-        }
+        DayAndMonth dayAndMonthMin = findMinDayAndMonth(dayAndMonthNow, listDay, listMonth, fieldWeek, year);
 
         //这一年不满足加一年,时分秒日月都重置为最小的
         if(null == dayAndMonthMin){
@@ -140,6 +125,24 @@ public class CronUtil {
             setDayAndMonth(calendar , dayAndMonthMin);
         }
         return calendar.getTime();
+    }
+
+    /**
+     * 找到最小的满足日月周的
+     */
+    private static DayAndMonth findMinDayAndMonth(DayAndMonth dayAndMonthNow, List<Integer> listDay, List<Integer> listMonth, CronField fieldWeek, int year) {
+        for (Integer month : listMonth) {
+            for (Integer day : listDay) {
+                DayAndMonth dayAndMonth = new DayAndMonth(day, month);
+                //大于等于现在的并且满足星期的
+                if(dayAndMonth.compareTo(dayAndMonthNow) >= 0
+                        && satisfy(DateUtil.week(year , dayAndMonth) , fieldWeek)
+                        ){
+                    return dayAndMonth;
+                }
+            }
+        }
+        return null;
     }
 
     /**
