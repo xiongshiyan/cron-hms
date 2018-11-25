@@ -16,17 +16,20 @@ import java.util.*;
 public class DayBasedCronParser implements CronParser{
     private static final int CRON_LEN_YEAR = 7;
     private static final int MAX_ADD_YEAR  = 10;
+    /**
+     * 以下字段在构造之后就不会变了
+     */
     private final String expression;
     private final TimeZone timeZone;
 
-    private List<CronField> cronFields = null;
-    private CronField fieldSecond = null;
-    private CronField fieldMinute = null;
-    private CronField fieldHour   = null;
-    private CronField fieldDay    = null;
-    private CronField fieldMonth  = null;
-    private CronField fieldWeek   = null;
-    private CronField fieldYear   = null;
+    private final List<CronField> cronFields;
+    private final CronField fieldSecond;
+    private final CronField fieldMinute;
+    private final CronField fieldHour  ;
+    private final CronField fieldDay   ;
+    private final CronField fieldMonth ;
+    private final CronField fieldWeek  ;
+    private final CronField fieldYear  ;
 
 
     public DayBasedCronParser(String expression) {
@@ -35,10 +38,6 @@ public class DayBasedCronParser implements CronParser{
     public DayBasedCronParser(String expression, TimeZone timeZone) {
         this.expression = expression;
         this.timeZone = timeZone;
-        init();
-    }
-
-    private void init(){
         cronFields = CronUtil.convertCronField(expression);
 
         fieldSecond = cronFields.get(CronPosition.SECOND.getPosition());
@@ -47,6 +46,12 @@ public class DayBasedCronParser implements CronParser{
         fieldDay    = cronFields.get(CronPosition.DAY.getPosition());
         fieldMonth  = cronFields.get(CronPosition.MONTH.getPosition());
         fieldWeek   = cronFields.get(CronPosition.WEEK.getPosition());
+        /// 如果包含年域
+        if (CRON_LEN_YEAR == cronFields.size()) {
+            fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
+        }else {
+            fieldYear = null;
+        }
     }
 
     /**
@@ -64,16 +69,15 @@ public class DayBasedCronParser implements CronParser{
         calendar.setTime(date);
         calendar.add(Calendar.SECOND , 1);
 
-        /// 如果包含年域
-        if (CRON_LEN_YEAR == cronFields.size()) {
+        if(null != fieldYear){
             Integer year = DateUtil.year(calendar);
-            fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
             List<Integer> listYear = fieldYear.points();
             Integer calYear = CompareUtil.findNext(year, listYear);
             if (!year.equals(calYear)) {
                 calendar.set(Calendar.YEAR, calYear);
             }
         }
+
         return doNext(calendar);
     }
     private Date doNext(Calendar calendar) {
@@ -89,7 +93,7 @@ public class DayBasedCronParser implements CronParser{
      */
     private Date doDayOfYear(int addYear , Calendar calendar, TimeOfDay timeOfDayMin) {
         if(addYear >= MAX_ADD_YEAR){
-            throw new IllegalArgumentException("Invalid cron expression【日月周年】 which led to runaway search for next trigger");
+            throw new IllegalArgumentException("Invalid cron expression \"" + expression + "\" which led to runaway search for next trigger");
         }
 
         int year = DateUtil.year(calendar);
@@ -172,6 +176,7 @@ public class DayBasedCronParser implements CronParser{
     @Override
     public List<TimeOfDay> timesOfDay(Date date) {
         Calendar calendar = Calendar.getInstance();
+        calendar.setTimeZone(timeZone);
         calendar.setTime(date);
 
         int year  = DateUtil.year(calendar);
@@ -179,8 +184,7 @@ public class DayBasedCronParser implements CronParser{
         int month = DateUtil.month(calendar);
         int day   = DateUtil.day(calendar);
         /// 如果包含年域
-        if (CRON_LEN_YEAR == cronFields.size()) {
-            CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
+        if (null != fieldYear) {
             if (!CronUtil.satisfy(year, fieldYear)) {
                 return Collections.emptyList();
             }
