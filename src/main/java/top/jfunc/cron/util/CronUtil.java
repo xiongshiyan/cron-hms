@@ -122,14 +122,14 @@ public class CronUtil {
             return doDayOfYear(++addYear , calendar, fieldDay, fieldMonth, fieldWeek, fieldYear, timeOfDayMin);
         }
 
-        //小于最小的
+        //最小的即是要找的day，因为前面一个方法已经处理好时分秒了
+        setDayOfYear(calendar, dayOfYearMin);
+
+        //小于最小的的时候
         if (dayOfYearNow.compareTo(dayOfYearMin) < 0) {
-            setDayOfYear(calendar, dayOfYearMin);
             setTimeOfDay(calendar , timeOfDayMin);
-        }else {
-            //最小的即是要找的day，因为前面一个方法已经处理好时分秒了
-            setDayOfYear(calendar , dayOfYearMin);
         }
+
         return calendar.getTime();
     }
 
