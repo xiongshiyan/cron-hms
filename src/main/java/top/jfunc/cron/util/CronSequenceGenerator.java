@@ -137,7 +137,7 @@ public class CronSequenceGenerator {
 		calendar.setTimeZone(this.timeZone);
 		calendar.setTime(date);
 
-		// First, just reset the milliseconds and try to calculate from there...
+		// First, just reset the milliseconds and try to timesOfDay from there...
 		calendar.set(Calendar.MILLISECOND, 0);
 		long originalTimestamp = calendar.getTimeInMillis();
 		doNext(calendar, calendar.get(Calendar.YEAR));

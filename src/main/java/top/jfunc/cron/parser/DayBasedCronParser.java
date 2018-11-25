@@ -113,6 +113,6 @@ public class DayBasedCronParser implements CronParser{
         CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.getPosition());
         CronField fieldSecond    = cronFields.get(CronPosition.SECOND.getPosition());
 
-        return CronUtil.allTimeOfDays(fieldHour, fieldMinute, fieldSecond);
+        return CronUtil.timesOfDay(fieldHour, fieldMinute, fieldSecond);
     }
 }

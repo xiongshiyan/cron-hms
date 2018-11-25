@@ -69,11 +69,11 @@ public class CronTest {
     @Test
     public void testCal(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        List<TimeOfDay> calculate = CronUtil.calculate("0 15 10 ? * *", date);
+        List<TimeOfDay> calculate = CronUtil.timesOfDay("0 15 10 ? * *", date);
         Assert.assertEquals(Collections.singletonList(new TimeOfDay(10 , 15 , 0)) , calculate);
 
         String cron = "0-5 15 10 ? * *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 15 , 0),
                 new TimeOfDay(10 , 15 , 1),
@@ -84,7 +84,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1/10 10 ? * *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 11 , 0),
@@ -95,7 +95,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1,4,6,8,10,50 10 ? * *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 4 , 0),
@@ -106,7 +106,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-30/5 10 ? * *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 6 , 0),
@@ -117,7 +117,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-30/5 10 ? * SUN";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 6 , 0),
@@ -128,7 +128,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-30/5 10 ? 11 *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 6 , 0),
@@ -139,7 +139,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-4,43 10 ? 11 *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 2 , 0),
@@ -149,7 +149,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-10/2,43 10 ? 11 *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 3 , 0),
@@ -160,7 +160,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 7,1-5/2,5,6 10 ? 11 *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 3 , 0),
@@ -170,7 +170,7 @@ public class CronTest {
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
 
         cron = "0 1-6/2,12-27/5 10 ? 11 *";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Arrays.asList(
                 new TimeOfDay(10 , 1 , 0),
                 new TimeOfDay(10 , 3 , 0),
@@ -183,7 +183,7 @@ public class CronTest {
 
         ///星期一到星期六执行,星期天不执行就返回空集合
         cron = "0 1-30/5 10 ? * MON-SAT";
-        calculate = CronUtil.calculate(cron, date);
+        calculate = CronUtil.timesOfDay(cron, date);
         Assert.assertEquals(Collections.emptyList(), calculate);
         Assert.assertEquals(calculate , new DayBasedCronParser(cron).timesOfDay(date));
     }
@@ -196,31 +196,31 @@ public class CronTest {
     @Test(expected = IllegalArgumentException.class)
     public void testException1(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        CronUtil.calculate("5-0 15 10 ? * *", date);
+        CronUtil.timesOfDay("5-0 15 10 ? * *", date);
     }
     @Test(expected = IllegalArgumentException.class)
     public void testException2(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        CronUtil.calculate("1-62 15 10 ? * *", date);
+        CronUtil.timesOfDay("1-62 15 10 ? * *", date);
     }
     @Test(expected = IllegalArgumentException.class)
     public void testException3(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        CronUtil.calculate("1 2-78 10 ? * *", date);
+        CronUtil.timesOfDay("1 2-78 10 ? * *", date);
     }
     @Test(expected = IllegalArgumentException.class)
     public void testException4(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        CronUtil.calculate("2 15 25 ? * *", date);
+        CronUtil.timesOfDay("2 15 25 ? * *", date);
     }
     @Test(expected = IllegalArgumentException.class)
     public void testException5(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        CronUtil.calculate("2 15 23 2-32 * *", date);
+        CronUtil.timesOfDay("2 15 23 2-32 * *", date);
     }
     @Test(expected = IllegalArgumentException.class)
     public void testException6(){
         Date date = DateUtil.toDate("2018-11-18 12:00:12");
-        CronUtil.calculate("2 15 23 3 1-13/2 *", date);
+        CronUtil.timesOfDay("2 15 23 3 1-13/2 *", date);
     }
 }

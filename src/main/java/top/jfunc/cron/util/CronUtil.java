@@ -103,8 +103,8 @@ public class CronUtil {
 
         }
         //先确定日月
-        Integer dayNow    = DateUtil.day(calendar);
-        Integer monthNow  = DateUtil.month(calendar);
+        int dayNow    = DateUtil.day(calendar);
+        int monthNow  = DateUtil.month(calendar);
 
 
         //可用的日月
@@ -182,7 +182,7 @@ public class CronUtil {
 
 
         //找到所有时分秒的组合
-        List<TimeOfDay> points = allTimeOfDays(fieldHour, fieldMinute, fieldSecond);
+        List<TimeOfDay> points = timesOfDay(fieldHour, fieldMinute, fieldSecond);
 
         TimeOfDay timeOfDayNow   = new TimeOfDay(hourNow, minuteNow, secondNow);
         TimeOfDay timeOfDayMin   = points.get(0);
@@ -218,7 +218,7 @@ public class CronUtil {
      * @param date 时间,某天
      * @return 这一天的哪些时分秒执行, 不执行的返回空
      */
-    public static List<TimeOfDay> calculate(String cron, Date date) {
+    public static List<TimeOfDay> timesOfDay(String cron, Date date) {
         List<CronField> cronFields = convertCronField(cron);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(date);
@@ -249,10 +249,10 @@ public class CronUtil {
         CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.getPosition());
         CronField fieldSecond    = cronFields.get(CronPosition.SECOND.getPosition());
 
-        return allTimeOfDays(fieldHour, fieldMinute, fieldSecond);
+        return timesOfDay(fieldHour, fieldMinute, fieldSecond);
     }
 
-    public static List<TimeOfDay> allTimeOfDays(CronField fieldHour, CronField fieldMinute, CronField fieldSecond) {
+    public static List<TimeOfDay> timesOfDay(CronField fieldHour, CronField fieldMinute, CronField fieldSecond) {
         List<Integer> listHour   = fieldHour.points();
         List<Integer> listMinute = fieldMinute.points();
         List<Integer> listSecond = fieldSecond.points();
