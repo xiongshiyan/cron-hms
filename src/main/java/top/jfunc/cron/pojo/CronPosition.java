@@ -3,9 +3,9 @@ package top.jfunc.cron.pojo;
 /**
  * cron表达式某个位置上的一些常量，跟cron表达式的域一一对应
  * {
- *        0       1      2   3     4     5        6
- *        0      15     10   ?     *   MON-FRI  (2018)
- *     SECOND、MINUTE、HOUR、DAY、MONTH、WEEK     (、YEAR)
+ *   顺序        0       1      2   3     4     5        6
+ *   cron       0      15     10   ?     *   MON-FRI  (2018)
+ *   cron域   SECOND、MINUTE、HOUR、DAY、MONTH、WEEK     (、YEAR)
  * }
  * @author xiongshiyan at 2018/11/17 , contact me with email yanshixiong@126.com or phone 15208384257
  */
