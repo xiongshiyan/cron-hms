@@ -38,15 +38,15 @@ public class DayBasedCronParser implements CronParser{
         this.timeZone = timeZone;
         cronFields = CronUtil.convertCronField(expression);
 
-        fieldSecond = cronFields.get(CronPosition.SECOND.getPosition());
-        fieldMinute = cronFields.get(CronPosition.MINUTE.getPosition());
-        fieldHour   = cronFields.get(CronPosition.HOUR.getPosition());
-        fieldDay    = cronFields.get(CronPosition.DAY.getPosition());
-        fieldMonth  = cronFields.get(CronPosition.MONTH.getPosition());
-        fieldWeek   = cronFields.get(CronPosition.WEEK.getPosition());
+        fieldSecond = cronFields.get(CronPosition.SECOND.ordinal());
+        fieldMinute = cronFields.get(CronPosition.MINUTE.ordinal());
+        fieldHour   = cronFields.get(CronPosition.HOUR.ordinal());
+        fieldDay    = cronFields.get(CronPosition.DAY.ordinal());
+        fieldMonth  = cronFields.get(CronPosition.MONTH.ordinal());
+        fieldWeek   = cronFields.get(CronPosition.WEEK.ordinal());
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
-            fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
+            fieldYear = cronFields.get(CronPosition.YEAR.ordinal());
         }else {
             fieldYear = null;
         }
@@ -109,9 +109,9 @@ public class DayBasedCronParser implements CronParser{
             return Collections.emptyList();
         }
 
-        CronField fieldHour      = cronFields.get(CronPosition.HOUR.getPosition());
-        CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.getPosition());
-        CronField fieldSecond    = cronFields.get(CronPosition.SECOND.getPosition());
+        CronField fieldHour      = cronFields.get(CronPosition.HOUR.ordinal());
+        CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.ordinal());
+        CronField fieldSecond    = cronFields.get(CronPosition.SECOND.ordinal());
 
         return CronUtil.timesOfDay(fieldHour, fieldMinute, fieldSecond);
     }

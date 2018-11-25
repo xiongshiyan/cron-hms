@@ -30,7 +30,7 @@ public class CronTest {
         List<CronField> cronFields = CronUtil.convertCronField("0 0-5 14/2 * * ?");
         for (int i = 0; i < 6; i++) {
             CronField field = cronFields.get(i);
-            Assert.assertEquals(field.getCronPosition().getPosition(), i);
+            Assert.assertEquals(field.getCronPosition().ordinal(), i);
         }
         Assert.assertEquals("0" , cronFields.get(0).getExpress());
         Assert.assertEquals("0-5" , cronFields.get(1).getExpress());
@@ -41,7 +41,7 @@ public class CronTest {
         List<CronField> fields = CronUtil.convertCronField("0 15 10 ? JAN-NOV MON-FRI");
         for (int i = 0; i < 6; i++) {
             CronField field = fields.get(i);
-            Assert.assertEquals(field.getCronPosition().getPosition(), i);
+            Assert.assertEquals(field.getCronPosition().ordinal(), i);
         }
         Assert.assertEquals("0" , fields.get(0).getExpress());
         Assert.assertEquals("15" , fields.get(1).getExpress());

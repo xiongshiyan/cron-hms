@@ -48,13 +48,13 @@ public class CronUtil {
     public static Date next(String cron, Date date) {
         List<CronField> cronFields = convertCronField(cron);
 
-        CronField fieldSecond = cronFields.get(CronPosition.SECOND.getPosition());
-        CronField fieldMinute = cronFields.get(CronPosition.MINUTE.getPosition());
-        CronField fieldHour   = cronFields.get(CronPosition.HOUR.getPosition());
+        CronField fieldSecond = cronFields.get(CronPosition.SECOND.ordinal());
+        CronField fieldMinute = cronFields.get(CronPosition.MINUTE.ordinal());
+        CronField fieldHour   = cronFields.get(CronPosition.HOUR.ordinal());
 
-        CronField fieldDay    = cronFields.get(CronPosition.DAY.getPosition());
-        CronField fieldMonth  = cronFields.get(CronPosition.MONTH.getPosition());
-        CronField fieldWeek   = cronFields.get(CronPosition.WEEK.getPosition());
+        CronField fieldDay    = cronFields.get(CronPosition.DAY.ordinal());
+        CronField fieldMonth  = cronFields.get(CronPosition.MONTH.ordinal());
+        CronField fieldWeek   = cronFields.get(CronPosition.WEEK.ordinal());
 
         Calendar calendar = Calendar.getInstance();
         //基准线,至少从下一秒开始
@@ -65,7 +65,7 @@ public class CronUtil {
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
             Integer year = DateUtil.year(calendar);
-            fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
+            fieldYear = cronFields.get(CronPosition.YEAR.ordinal());
             List<Integer> listYear = fieldYear.points();
             Integer calYear = CompareUtil.findNext(year, listYear);
             if (!year.equals(calYear)) {
@@ -229,15 +229,15 @@ public class CronUtil {
         int day   = DateUtil.day(calendar);
         /// 如果包含年域
         if (CRON_LEN_YEAR == cronFields.size()) {
-            CronField fieldYear = cronFields.get(CronPosition.YEAR.getPosition());
+            CronField fieldYear = cronFields.get(CronPosition.YEAR.ordinal());
             if (!satisfy(year, fieldYear)) {
                 return Collections.emptyList();
             }
         }
 
-        CronField fieldWeek  = cronFields.get(CronPosition.WEEK.getPosition());
-        CronField fieldMonth = cronFields.get(CronPosition.MONTH.getPosition());
-        CronField fieldDay   = cronFields.get(CronPosition.DAY.getPosition());
+        CronField fieldWeek  = cronFields.get(CronPosition.WEEK.ordinal());
+        CronField fieldMonth = cronFields.get(CronPosition.MONTH.ordinal());
+        CronField fieldDay   = cronFields.get(CronPosition.DAY.ordinal());
         ///今天不执行就直接返回空
         if (!satisfy(week, fieldWeek)
                 || !satisfy(month, fieldMonth)
@@ -245,9 +245,9 @@ public class CronUtil {
             return Collections.emptyList();
         }
 
-        CronField fieldHour      = cronFields.get(CronPosition.HOUR.getPosition());
-        CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.getPosition());
-        CronField fieldSecond    = cronFields.get(CronPosition.SECOND.getPosition());
+        CronField fieldHour      = cronFields.get(CronPosition.HOUR.ordinal());
+        CronField fieldMinute    = cronFields.get(CronPosition.MINUTE.ordinal());
+        CronField fieldSecond    = cronFields.get(CronPosition.SECOND.ordinal());
 
         return timesOfDay(fieldHour, fieldMinute, fieldSecond);
     }
