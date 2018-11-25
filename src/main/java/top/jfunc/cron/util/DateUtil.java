@@ -41,7 +41,7 @@ public class DateUtil {
      * @return 字符串
      */
     public static String toStr(Date date, String format) {
-        SimpleDateFormat sdf = null;
+        SimpleDateFormat sdf;
         if (null != format && !"".equals(format)) {
             sdf = new SimpleDateFormat(format);
             return sdf.format(date);
