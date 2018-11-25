@@ -2,7 +2,6 @@ package top.jfunc.cron.parser;
 
 import top.jfunc.cron.pojo.CronField;
 import top.jfunc.cron.pojo.CronPosition;
-import top.jfunc.cron.pojo.DayOfYear;
 import top.jfunc.cron.pojo.TimeOfDay;
 import top.jfunc.cron.util.CompareUtil;
 import top.jfunc.cron.util.CronUtil;
@@ -15,7 +14,6 @@ import java.util.*;
  */
 public class DayBasedCronParser implements CronParser{
     private static final int CRON_LEN_YEAR = 7;
-    private static final int MAX_ADD_YEAR  = 10;
     /**
      * 以下字段在构造之后就不会变了
      */
@@ -78,93 +76,7 @@ public class DayBasedCronParser implements CronParser{
             }
         }
 
-        return doNext(calendar);
-    }
-    private Date doNext(Calendar calendar) {
-        //////////////////////////////////时分秒///////////////////////////////
-        TimeOfDay timeOfDayMin = doTimeOfDay(calendar);
-
-        //////////////////////////////////日月周///////////////////////////////
-        return doDayOfYear(0 , calendar , timeOfDayMin);
-    }
-
-    /**
-     * 处理日月周
-     */
-    private Date doDayOfYear(int addYear , Calendar calendar, TimeOfDay timeOfDayMin) {
-        if(addYear >= MAX_ADD_YEAR){
-            throw new IllegalArgumentException("Invalid cron expression \"" + expression + "\" which led to runaway search for next trigger");
-        }
-
-        int year = DateUtil.year(calendar);
-        //有年域的情况
-        if(null != fieldYear){
-            //这一年不满足加一年,时分秒日月都重置为最小的
-            if(!CronUtil.satisfy(year , fieldYear)){
-                CronUtil.addOneYear(calendar, timeOfDayMin);
-                return doDayOfYear(++addYear , calendar, timeOfDayMin);
-            }
-
-        }
-        //先确定日月
-        int dayNow    = DateUtil.day(calendar);
-        int monthNow  = DateUtil.month(calendar);
-
-
-        //可用的日月
-        List<Integer> listDay   = fieldDay.points();
-        List<Integer> listMonth = fieldMonth.points();
-
-
-        DayOfYear dayOfYearNow = new DayOfYear(dayNow , monthNow , year);
-        //找到最小的一个满足日月星期的
-        DayOfYear dayOfYearMin = CronUtil.findMinDayOfYear(dayOfYearNow, listDay, listMonth, fieldWeek);
-
-        //这一年不满足加一年,时分秒日月都重置为最小的
-        if(null == dayOfYearMin){
-            CronUtil.addOneYear(calendar , timeOfDayMin);
-            return doDayOfYear(++addYear , calendar, timeOfDayMin);
-        }
-
-        //小于最小的
-        if (dayOfYearNow.compareTo(dayOfYearMin) < 0) {
-            CronUtil.setDayOfYear(calendar, dayOfYearMin);
-            CronUtil.setTimeOfDay(calendar , timeOfDayMin);
-        }else {
-            //最小的即是要找的day，因为前面一个方法已经处理好时分秒了
-            CronUtil.setDayOfYear(calendar , dayOfYearMin);
-        }
-        return calendar.getTime();
-    }
-
-    /**
-     * 处理时分秒，并返回最小的时分秒
-     */
-    private TimeOfDay doTimeOfDay(Calendar calendar) {
-        //先确定时分秒
-        int hourNow    = DateUtil.hour(calendar);
-        int minuteNow  = DateUtil.minute(calendar);
-        int secondNow  = DateUtil.second(calendar);
-
-
-        //找到所有时分秒的组合
-        List<TimeOfDay> points = CronUtil.allTimeOfDays(fieldHour, fieldMinute, fieldSecond);
-
-        TimeOfDay timeOfDayNow   = new TimeOfDay(hourNow, minuteNow, secondNow);
-        TimeOfDay timeOfDayMin   = points.get(0);
-        TimeOfDay timeOfDayMax   = points.get(points.size() - 1);
-        //小于最小的
-        if (timeOfDayNow.compareTo(timeOfDayMin) < 0) {
-            CronUtil.setTimeOfDay(calendar, timeOfDayMin);
-            //大于最大的
-        } else if (timeOfDayNow.compareTo(timeOfDayMax) > 0) {
-            CronUtil.setTimeOfDay(calendar, timeOfDayMin);
-            calendar.add(Calendar.DAY_OF_MONTH, 1);
-        } else {
-            TimeOfDay next = CompareUtil.findNext(timeOfDayNow, points);
-            CronUtil.setTimeOfDay(calendar, next);
-        }
-        return timeOfDayMin;
+        return CronUtil.doNext(calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
     }
 
     /**

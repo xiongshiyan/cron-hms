@@ -76,7 +76,7 @@ public class CronUtil {
         return doNext(calendar, fieldSecond, fieldMinute, fieldHour, fieldDay, fieldMonth, fieldWeek , fieldYear);
     }
 
-    private static Date doNext(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear) {
+    public static Date doNext(Calendar calendar, CronField fieldSecond, CronField fieldMinute, CronField fieldHour, CronField fieldDay, CronField fieldMonth, CronField fieldWeek , CronField fieldYear) {
         //////////////////////////////////时分秒///////////////////////////////
         TimeOfDay timeOfDayMin = doTimeOfDay(calendar, fieldSecond, fieldMinute, fieldHour);
 
@@ -136,7 +136,7 @@ public class CronUtil {
     /**
      * 找到最小的满足日月周的
      */
-    public static DayOfYear findMinDayOfYear(DayOfYear dayOfYearNow, List<Integer> listDay, List<Integer> listMonth, CronField fieldWeek) {
+    private static DayOfYear findMinDayOfYear(DayOfYear dayOfYearNow, List<Integer> listDay, List<Integer> listMonth, CronField fieldWeek) {
         for (Integer month : listMonth) {
             for (Integer day : listDay) {
                 DayOfYear dayOfYear = new DayOfYear(day, month , dayOfYearNow.getYear());
@@ -154,7 +154,7 @@ public class CronUtil {
     /**
      * 加一年 时分秒日月都重置为最小的
      */
-    public static void addOneYear(Calendar calendar, TimeOfDay timeOfDayMin) {
+    private static void addOneYear(Calendar calendar, TimeOfDay timeOfDayMin) {
         setDayOfYear(calendar , 1 ,1);
         setTimeOfDay(calendar, timeOfDayMin);
         calendar.add(Calendar.YEAR, 1);
@@ -163,10 +163,10 @@ public class CronUtil {
     /**
      * 设置日月
      */
-    public static void setDayOfYear(Calendar calendar, DayOfYear dayOfYear) {
+    private static void setDayOfYear(Calendar calendar, DayOfYear dayOfYear) {
         setDayOfYear(calendar , dayOfYear.getMonth() , dayOfYear.getDay());
     }
-    public static void setDayOfYear(Calendar calendar, int month , int day) {
+    private static void setDayOfYear(Calendar calendar, int month , int day) {
         calendar.set(Calendar.MONTH , month - 1);
         calendar.set(Calendar.DAY_OF_MONTH , day);
     }
@@ -204,7 +204,7 @@ public class CronUtil {
     /**
      * 设置时分秒域
      */
-    public static void setTimeOfDay(Calendar calendar, TimeOfDay timeOfDay) {
+    private static void setTimeOfDay(Calendar calendar, TimeOfDay timeOfDay) {
         calendar.set(Calendar.HOUR_OF_DAY, timeOfDay.getHour());
         calendar.set(Calendar.MINUTE, timeOfDay.getMinute());
         calendar.set(Calendar.SECOND, timeOfDay.getSecond());
