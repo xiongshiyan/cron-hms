@@ -11,10 +11,10 @@ import java.util.List;
  * @author xiongshiyan
  */
 public class CronField {
-    public static final String STAR = "*";
-    public static final String COMMA = ",";
+    public static final String STAR   = "*";
+    public static final String COMMA  = ",";
     public static final String HYPHEN = "-";
-    public static final String SLASH = "/";
+    public static final String SLASH  = "/";
 
     private CronPosition cronPosition;
     private String express;
@@ -34,10 +34,30 @@ public class CronField {
     }
 
     /**
-     * 是否包含全部的数值
+     * 是否包含全部的数值，即是 *
      */
     public boolean containsAll(){
-        return STAR.equals(getExpress());
+        return STAR.equals(express);
+    }
+
+    /**
+     * 是否包含 ,
+     */
+    public boolean containsComma(){
+        return express.contains(COMMA);
+    }
+    /**
+     * 是否包含 -
+     */
+    public boolean containsHyphen(){
+        return express.contains(HYPHEN);
+    }
+
+    /**
+     * 是否包含 /
+     */
+    public boolean containsSlash(){
+        return express.contains(SLASH);
     }
 
     /**
@@ -62,7 +82,7 @@ public class CronField {
             return listCache;
         }
         // 带有,的情况,分割之后每部分单独处理
-        if (express.contains(COMMA)) {
+        if (containsComma()) {
             String[] split = express.split(COMMA);
             for (String part : split) {
                 listCache.addAll( new CronField(cronPosition, part).points());
@@ -82,7 +102,7 @@ public class CronField {
         int step = 1;
 
         //包含-的情况
-        if (express.contains(HYPHEN)) {
+        if (containsHyphen()) {
             String[] strings = express.split(HYPHEN);
             left = Integer.parseInt(strings[0]);
             CompareUtil.assertRange(cronPosition, left);
@@ -102,7 +122,7 @@ public class CronField {
                 CompareUtil.assertRange(cronPosition, right);
             }
             //仅仅包含/
-        } else if (express.contains(SLASH)) {
+        } else if (containsSlash()) {
             String[] strings = express.split(SLASH);
             left = Integer.parseInt(strings[0]);
             CompareUtil.assertRange(cronPosition, left);
